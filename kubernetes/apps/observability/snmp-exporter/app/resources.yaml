@@ -25,13 +25,22 @@ data:
       walk:
         - 1.3.6.1.2.1.31.1.1.1.10
         - 1.3.6.1.2.1.31.1.1.1.6
+        - 1.3.6.1.2.1.2.2.1.2
+        - 1.3.6.1.2.1.2.2.1.8
+        - 1.3.6.1.2.1.2.2.1.14
+        - 1.3.6.1.2.1.2.2.1.20
       get:
         - 1.3.6.1.2.1.25.1.1.0
         - 1.3.6.1.2.1.25.2.2.0
         - 1.3.6.1.4.1.2021.11.11.0
+        - 1.3.6.1.4.1.2021.11.9.0
+        - 1.3.6.1.4.1.2021.11.10.0
         - 1.3.6.1.4.1.2021.4.11.0
         - 1.3.6.1.4.1.2021.4.15.0
         - 1.3.6.1.4.1.2021.4.5.0
+        - 1.3.6.1.4.1.2021.10.1.3.1
+        - 1.3.6.1.4.1.2021.10.1.3.2
+        - 1.3.6.1.4.1.2021.10.1.3.3
       metrics:
         - name: hrSystemUptime
           oid: 1.3.6.1.2.1.25.1.1
@@ -48,6 +57,11 @@ data:
           indexes:
             - labelname: ifIndex
               type: gauge
+          lookups:
+            - labels: [ifIndex]
+              labelname: ifDescr
+              oid: 1.3.6.1.2.1.2.2.1.2
+              type: DisplayString
         - name: ifHCInOctets
           oid: 1.3.6.1.2.1.31.1.1.1.6
           type: counter
@@ -55,10 +69,59 @@ data:
           indexes:
             - labelname: ifIndex
               type: gauge
+          lookups:
+            - labels: [ifIndex]
+              labelname: ifDescr
+              oid: 1.3.6.1.2.1.2.2.1.2
+              type: DisplayString
+        - name: ifOperStatus
+          oid: 1.3.6.1.2.1.2.2.1.8
+          type: gauge
+          help: "Interface operational state: 1=up 2=down 3=testing 4=unknown 5=dormant 6=notPresent 7=lowerLayerDown"
+          indexes:
+            - labelname: ifIndex
+              type: gauge
+          lookups:
+            - labels: [ifIndex]
+              labelname: ifDescr
+              oid: 1.3.6.1.2.1.2.2.1.2
+              type: DisplayString
+        - name: ifInErrors
+          oid: 1.3.6.1.2.1.2.2.1.14
+          type: counter
+          help: The number of inbound packets discarded because of errors
+          indexes:
+            - labelname: ifIndex
+              type: gauge
+          lookups:
+            - labels: [ifIndex]
+              labelname: ifDescr
+              oid: 1.3.6.1.2.1.2.2.1.2
+              type: DisplayString
+        - name: ifOutErrors
+          oid: 1.3.6.1.2.1.2.2.1.20
+          type: counter
+          help: The number of outbound packets that could not be transmitted because of errors
+          indexes:
+            - labelname: ifIndex
+              type: gauge
+          lookups:
+            - labels: [ifIndex]
+              labelname: ifDescr
+              oid: 1.3.6.1.2.1.2.2.1.2
+              type: DisplayString
         - name: ssCpuIdle
           oid: 1.3.6.1.4.1.2021.11.11
           type: gauge
           help: The percentage of processor time spent idle
+        - name: ssCpuUser
+          oid: 1.3.6.1.4.1.2021.11.9
+          type: gauge
+          help: The percentage of processor time spent on user-level processes
+        - name: ssCpuSystem
+          oid: 1.3.6.1.4.1.2021.11.10
+          type: gauge
+          help: The percentage of processor time spent on system-level (kernel) processes
         - name: memTotalFree
           oid: 1.3.6.1.4.1.2021.4.11
           type: gauge
@@ -71,6 +134,30 @@ data:
           oid: 1.3.6.1.4.1.2021.4.5
           type: gauge
           help: The total amount of real/physical memory installed on this host
+        - name: laLoad1
+          oid: 1.3.6.1.4.1.2021.10.1.3.1
+          type: DisplayString
+          help: 1 minute load average
+          regex_extracts:
+            '':
+              - regex: '(\d+\.\d+)'
+                value: '$1'
+        - name: laLoad5
+          oid: 1.3.6.1.4.1.2021.10.1.3.2
+          type: DisplayString
+          help: 5 minute load average
+          regex_extracts:
+            '':
+              - regex: '(\d+\.\d+)'
+                value: '$1'
+        - name: laLoad15
+          oid: 1.3.6.1.4.1.2021.10.1.3.3
+          type: DisplayString
+          help: 15 minute load average
+          regex_extracts:
+            '':
+              - regex: '(\d+\.\d+)'
+                value: '$1'
 ---
 apiVersion: apps/v1
 kind: Deployment

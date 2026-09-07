@@ -94,23 +94,98 @@ data:
         },
         {
           "id": 5,
-          "title": "Interface Traffic (all ifIndex)",
+          "title": "Interface Traffic",
           "type": "timeseries",
           "gridPos": { "h": 10, "w": 24, "x": 0, "y": 8 },
           "datasource": { "type": "prometheus", "uid": "VictoriaMetrics" },
           "targets": [
             {
               "expr": "rate(ifHCInOctets{instance=\"192.168.1.1\"}[5m]) * 8",
-              "legendFormat": "in ifIndex={{ifIndex}}",
+              "legendFormat": "in {{ifDescr}}",
               "refId": "A"
             },
             {
               "expr": "rate(ifHCOutOctets{instance=\"192.168.1.1\"}[5m]) * 8 * -1",
-              "legendFormat": "out ifIndex={{ifIndex}}",
+              "legendFormat": "out {{ifDescr}}",
               "refId": "B"
             }
           ],
           "fieldConfig": { "defaults": { "unit": "bps" } }
+        },
+        {
+          "id": 6,
+          "title": "Interface Status",
+          "type": "state-timeline",
+          "gridPos": { "h": 6, "w": 24, "x": 0, "y": 18 },
+          "datasource": { "type": "prometheus", "uid": "VictoriaMetrics" },
+          "targets": [
+            {
+              "expr": "ifOperStatus{instance=\"192.168.1.1\"}",
+              "legendFormat": "{{ifDescr}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [
+                {
+                  "type": "value",
+                  "options": {
+                    "1": { "text": "Up", "color": "green" },
+                    "2": { "text": "Down", "color": "red" }
+                  }
+                }
+              ]
+            }
+          },
+          "options": { "mergeValues": true }
+        },
+        {
+          "id": 7,
+          "title": "Interface Errors",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 24, "x": 0, "y": 24 },
+          "datasource": { "type": "prometheus", "uid": "VictoriaMetrics" },
+          "targets": [
+            {
+              "expr": "rate(ifInErrors{instance=\"192.168.1.1\"}[5m])",
+              "legendFormat": "in {{ifDescr}}",
+              "refId": "A"
+            },
+            {
+              "expr": "rate(ifOutErrors{instance=\"192.168.1.1\"}[5m]) * -1",
+              "legendFormat": "out {{ifDescr}}",
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "pps" } }
+        },
+        {
+          "id": 8,
+          "title": "CPU Breakdown",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 32 },
+          "datasource": { "type": "prometheus", "uid": "VictoriaMetrics" },
+          "targets": [
+            { "expr": "ssCpuUser{instance=\"192.168.1.1\"}", "legendFormat": "user", "refId": "A" },
+            { "expr": "ssCpuSystem{instance=\"192.168.1.1\"}", "legendFormat": "system", "refId": "B" },
+            { "expr": "ssCpuIdle{instance=\"192.168.1.1\"}", "legendFormat": "idle", "refId": "C" }
+          ],
+          "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "max": 100 } },
+          "options": { "stacking": { "mode": "normal" } }
+        },
+        {
+          "id": 9,
+          "title": "Load Average",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 32 },
+          "datasource": { "type": "prometheus", "uid": "VictoriaMetrics" },
+          "targets": [
+            { "expr": "laLoad1{instance=\"192.168.1.1\"}", "legendFormat": "1m", "refId": "A" },
+            { "expr": "laLoad5{instance=\"192.168.1.1\"}", "legendFormat": "5m", "refId": "B" },
+            { "expr": "laLoad15{instance=\"192.168.1.1\"}", "legendFormat": "15m", "refId": "C" }
+          ],
+          "fieldConfig": { "defaults": { "unit": "short", "min": 0 } }
         }
       ]
     }
