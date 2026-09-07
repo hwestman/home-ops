@@ -18,10 +18,12 @@ spec:
           resources:
             requests:
               storage: 10Gi
-    # Drop high-cardinality apiserver/etcd histogram buckets - these alone
-    # were ~55% of all active series (74.8k of 136k), and are only useful
-    # for diagnosing API server performance on large multi-tenant clusters,
-    # not something worth the storage cost on a single-node home cluster.
+    # Cardinality reduction: keep basic request/error totals and averages
+    # (_total, _sum, _count, simple gauges) for performance/debugging use;
+    # drop histogram buckets (any prefix - etcd's metrics flow through this
+    # same apiserver-labeled target too) and internal client-go/apiserver
+    # plumbing (workqueue/informer internals, storage-list stats, feature
+    # flags) nobody looks at on a home cluster. Cut total series ~136k -> ~50k.
     kubeApiServer:
       vmScrape:
         spec:
@@ -35,7 +37,10 @@ spec:
               metricRelabelConfigs:
                 - action: drop
                   sourceLabels: [__name__]
-                  regex: "apiserver_.*_bucket"
+                  regex: ".*_bucket"
+                - action: drop
+                  sourceLabels: [__name__]
+                  regex: "workqueue_.*|informer_.*|apiserver_storage_list_.*|apiextensions_openapi_v2_regeneration_count|kubernetes_feature_enabled"
     kubeEtcd:
       vmScrape:
         spec:
