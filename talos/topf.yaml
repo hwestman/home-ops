@@ -11,7 +11,7 @@ secretsPath: secrets.sops.yaml
 
 nodes:
   - host: "w11-1"
-    ip: "192.168.1.70"
+    ip: "192.168.1.75"
     role: control-plane
     schematicId: "582f7052afa259bd6ec06c800145292c496bb1a5332d9ca54f224e25507c3437"
     data:

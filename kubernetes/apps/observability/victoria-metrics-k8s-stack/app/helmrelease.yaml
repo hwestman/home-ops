@@ -1,0 +1,23 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: victoria-metrics-k8s-stack
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: victoria-metrics-k8s-stack
+  interval: 1h
+  values:
+    defaultDashboards:
+      enabled: true
+    vmsingle:
+      spec:
+        retentionPeriod: "1"
+        storage:
+          resources:
+            requests:
+              storage: 10Gi
+    grafana:
+      fullnameOverride: grafana
+      defaultDashboardsEnabled: true
