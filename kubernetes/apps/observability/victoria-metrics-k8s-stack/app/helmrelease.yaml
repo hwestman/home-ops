@@ -13,11 +13,42 @@ spec:
       enabled: true
     vmsingle:
       spec:
-        retentionPeriod: "1"
+        retentionPeriod: "14d"
         storage:
           resources:
             requests:
               storage: 10Gi
+    # Drop high-cardinality apiserver/etcd histogram buckets - these alone
+    # were ~55% of all active series (74.8k of 136k), and are only useful
+    # for diagnosing API server performance on large multi-tenant clusters,
+    # not something worth the storage cost on a single-node home cluster.
+    kubeApiServer:
+      vmScrape:
+        spec:
+          endpoints:
+            - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+              port: https
+              scheme: https
+              tlsConfig:
+                caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+                serverName: kubernetes
+              metricRelabelConfigs:
+                - action: drop
+                  sourceLabels: [__name__]
+                  regex: "apiserver_.*_bucket"
+    kubeEtcd:
+      vmScrape:
+        spec:
+          endpoints:
+            - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+              port: http-metrics
+              scheme: https
+              tlsConfig:
+                caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+              metricRelabelConfigs:
+                - action: drop
+                  sourceLabels: [__name__]
+                  regex: "etcd_.*_bucket"
     vlsingle:
       enabled: true
       spec:
