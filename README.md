@@ -1,9 +1,6 @@
-# w11 home-ops
+# home-ops
 
-Personal home Kubernetes cluster — networking, home automation, and media for
-the household. Successor to the old `k3-infrastructure` repo, rebuilt from
-scratch on [Talos Linux](https://github.com/siderolabs/talos) and
-[`onedr0p/cluster-template`](https://github.com/onedr0p/cluster-template).
+Kubernetes cluster based on [`onedr0p/cluster-template`](https://github.com/onedr0p/cluster-template).
 
 ## Stack
 
@@ -14,15 +11,12 @@ scratch on [Talos Linux](https://github.com/siderolabs/talos) and
 - **External access**: Cloudflare Tunnel, no inbound ports forwarded
 - **Secrets**: SOPS + age
 - **Image mirroring**: Spegel (peer-to-peer between nodes)
-- **Storage**: Longhorn, dedicated disk per node, tuned CPU reservations and
-  bounded volume sizes after learning the hard way on the old cluster
+- **Storage**: Longhorn, dedicated disk per node
 - **Observability**: VictoriaMetrics k8s stack (metrics + Grafana + alerting)
 
 ## Apps
 
-Home Assistant, ESPHome, Mosquitto, MariaDB, Frigate (GPU-accelerated via
-NVIDIA passthrough), UniFi Controller, AirConnect, and a couple of
-personal/utility services.
+Home Assistant, ESPHome, Mosquitto, MariaDB, Frigate, UniFi Controller, AirConnect
 
 ## Maintenance
 
