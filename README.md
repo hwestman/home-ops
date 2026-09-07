@@ -20,8 +20,9 @@ scratch on [Talos Linux](https://github.com/siderolabs/talos) and
 
 ## Apps
 
-Home Assistant, ESPHome, Mosquitto, MariaDB, Frigate, UniFi Controller,
-AirConnect, and a couple of personal/utility services.
+Home Assistant, ESPHome, Mosquitto, MariaDB, Frigate (GPU-accelerated via
+NVIDIA passthrough), UniFi Controller, AirConnect, and a couple of
+personal/utility services.
 
 ## Maintenance
 
