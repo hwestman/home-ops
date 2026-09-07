@@ -1,9 +1,6 @@
 # w11 home-ops
 
-Personal home Kubernetes cluster — networking, home automation, and media for
-the household. Successor to the old `k3-infrastructure` repo, rebuilt from
-scratch on [Talos Linux](https://github.com/siderolabs/talos) and
-[`onedr0p/cluster-template`](https://github.com/onedr0p/cluster-template).
+Personal home Kubernetes cluster - based on [`onedr0p/cluster-template`](https://github.com/onedr0p/cluster-template).
 
 ## Stack
 
@@ -20,7 +17,7 @@ scratch on [Talos Linux](https://github.com/siderolabs/talos) and
 ## Apps
 
 Home Assistant, ESPHome, Mosquitto, MariaDB, Frigate, UniFi Controller,
-AirConnect, and a couple of personal/utility services.
+AirConnect
 
 ## Maintenance
 
@@ -30,7 +27,3 @@ just talos upgrade-node <node>   # upgrade Talos on a node
 just talos upgrade-k8s           # upgrade Kubernetes version
 just kube reconcile               # force Flux to sync
 ```
-
-## Credit
-
-Built from [`onedr0p/cluster-template`](https://github.com/onedr0p/cluster-template).
