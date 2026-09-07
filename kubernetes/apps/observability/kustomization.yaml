@@ -8,4 +8,5 @@ components:
 
 resources:
   - ./namespace.yaml
+  - ./snmp-exporter/ks.yaml
   - ./victoria-metrics-k8s-stack/ks.yaml
