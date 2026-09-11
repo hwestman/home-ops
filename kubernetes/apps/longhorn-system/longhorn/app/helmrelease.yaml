@@ -1,0 +1,29 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: longhorn
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: longhorn
+      version: "1.12.1"
+      sourceRef:
+        kind: HelmRepository
+        name: longhorn
+        namespace: longhorn-system
+  values:
+    defaultSettings:
+      # Second physical disk on w11-1, claimed via a Talos UserVolumeConfig
+      # (see talos/all/72-longhorn-disk.yaml.tpl) — keeps Longhorn data off
+      # the OS disk.
+      defaultDataPath: /var/mnt/longhorn
+    persistence:
+      # local-path-provisioner stays the cluster default (non-critical data);
+      # apps needing real persistence opt in via storageClassName: longhorn.
+      defaultClass: false
+      # Single node today — no redundancy possible at replica count 3 yet.
+      # Bump to 3 once w11-2/w11-3 join (see home-cluster-migration-plan);
+      # Longhorn adds replicas to existing volumes live, no data migration.
+      defaultClassReplicaCount: 1

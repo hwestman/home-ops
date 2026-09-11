@@ -13,7 +13,7 @@ nodes:
   - host: "w11-1"
     ip: "192.168.1.75"
     role: control-plane
-    schematicId: "582f7052afa259bd6ec06c800145292c496bb1a5332d9ca54f224e25507c3437"
+    schematicId: "095f7264320230994e79f3eabed5630b36ee1ea0288f7e2218abb10df2ed13ef"
     data:
       installDisk: "/dev/disk/by-id/wwn-0x50026b7380795d70"
       installDiskSerial: ""
