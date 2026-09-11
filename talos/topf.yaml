@@ -21,3 +21,4 @@ nodes:
       mtu: 1500
       encryptDisk: false
       kernelModules: [nvidia, nvidia_uvm, nvidia_drm, nvidia_modeset]
+      longhornDisk: "/dev/disk/by-id/wwn-0x5001b448b6a20cc9"
