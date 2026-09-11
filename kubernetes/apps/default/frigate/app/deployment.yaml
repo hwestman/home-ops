@@ -1,0 +1,91 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frigate
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: frigate
+  template:
+    metadata:
+      labels:
+        app: frigate
+    spec:
+      runtimeClassName: nvidia
+      nodeSelector:
+        nvidia.com/gpu.present: "true"
+      initContainers:
+        - name: config-init
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              if [ ! -f /config/config.yml ] || [ ! -s /config/config.yml ]; then
+                cp /config-template/config.yml /config/config.yml
+              fi
+          volumeMounts:
+            - mountPath: /config
+              name: frigate-config
+            - mountPath: /config-template
+              name: frigate-configmap
+      containers:
+        - name: frigate
+          image: ghcr.io/blakeblackshear/frigate:stable-tensorrt
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: YOLO_MODELS
+              value: yolov7-320
+            - name: FRIGATE_MQTT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: frigate-mqtt
+                  key: password
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "1000m"
+            limits:
+              memory: "4Gi"
+              cpu: "4000m"
+              nvidia.com/gpu: 1
+          livenessProbe:
+            httpGet:
+              path: /api/version
+              port: 5000
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /api/version
+              port: 5000
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          volumeMounts:
+            - mountPath: /media/frigate
+              name: frigate-media
+            - mountPath: /config
+              name: frigate-config
+      volumes:
+        - name: frigate-configmap
+          configMap:
+            name: frigate-config
+            items:
+              - key: config.yml
+                path: config.yml
+        - name: frigate-media
+          persistentVolumeClaim:
+            claimName: frigate-media
+        - name: frigate-config
+          persistentVolumeClaim:
+            claimName: frigate-config

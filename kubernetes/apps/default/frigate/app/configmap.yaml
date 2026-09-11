@@ -1,0 +1,62 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frigate-config
+data:
+  config.yml: |
+    mqtt:
+      enabled: false
+
+    detectors:
+      tensorrt:
+        type: tensorrt
+        device: 0
+
+    model:
+      path: /config/model_cache/tensorrt/yolov7-320.trt
+      labelmap_path: /labelmap/coco-80.txt
+      input_tensor: nchw
+      input_pixel_format: rgb
+      width: 320
+      height: 320
+
+    ffmpeg:
+      hwaccel_args: preset-nvidia
+
+    detect:
+      enabled: true
+
+    record:
+      enabled: true
+      retain:
+        days: 7
+        mode: all
+      events:
+        retain:
+          default: 30
+          mode: motion
+
+    cameras:
+      driveway:
+        ffmpeg:
+          inputs:
+            - path: rtsp://192.168.1.161:554/s0
+              roles:
+                - record
+            - path: rtsp://192.168.1.161:554/s1
+              roles:
+                - detect
+        detect:
+          width: 640
+          height: 360
+      garage:
+        ffmpeg:
+          inputs:
+            - path: rtsp://192.168.1.103:8554/unicast
+              roles:
+                - detect
+                - record
+        detect:
+          width: 1920
+          height: 1080
