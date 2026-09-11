@@ -38,8 +38,6 @@ spec:
           image: ghcr.io/blakeblackshear/frigate:stable-tensorrt
           imagePullPolicy: IfNotPresent
           env:
-            - name: YOLO_MODELS
-              value: yolov7-320
             - name: FRIGATE_MQTT_PASSWORD
               valueFrom:
                 secretKeyRef:

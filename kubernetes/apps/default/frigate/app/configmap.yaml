@@ -9,15 +9,15 @@ data:
       enabled: false
 
     detectors:
-      tensorrt:
-        type: tensorrt
-        device: 0
+      onnx:
+        type: onnx
 
     model:
-      path: /config/model_cache/tensorrt/yolov7-320.trt
+      model_type: yolo-generic
+      path: /config/model_cache/yolo.onnx
       labelmap_path: /labelmap/coco-80.txt
       input_tensor: nchw
-      input_pixel_format: rgb
+      input_dtype: float
       width: 320
       height: 320
 
