@@ -91,14 +91,15 @@ data:
       washroom:
         ffmpeg:
           inputs:
-            - path: rtsp://admin:{FRIGATE_WASHROOM_PASSWORD}@192.168.2.118:554/cam/realmonitor?channel=1&subtype=0
-              roles:
-                - record
+            # Only the substream is pulled - the main (H.265) stream isn't
+            # needed since recording is off entirely for this camera.
             - path: rtsp://admin:{FRIGATE_WASHROOM_PASSWORD}@192.168.2.118:554/cam/realmonitor?channel=1&subtype=1
               roles:
                 - detect
         detect:
           width: 640
           height: 480
-        # No continuous recording - motion-only (inherits the global
-        # record.motion block above).
+        # Recording fully disabled - bathroom camera, live view + motion
+        # alerts only, nothing saved to disk.
+        record:
+          enabled: false
