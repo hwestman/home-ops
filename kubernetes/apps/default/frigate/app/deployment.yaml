@@ -41,8 +41,13 @@ spec:
             - name: FRIGATE_MQTT_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: frigate-mqtt
-                  key: password
+                  name: frigate-secrets
+                  key: mqtt-password
+            - name: FRIGATE_WASHROOM_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: frigate-secrets
+                  key: washroom-camera-password
           resources:
             requests:
               memory: "1Gi"
