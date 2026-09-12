@@ -65,6 +65,5 @@ data:
         detect:
           width: 1920
           height: 1080
-        record:
-          continuous:
-            days: 7
+        # No continuous recording - motion-only (inherits the global
+        # record.motion block above).
