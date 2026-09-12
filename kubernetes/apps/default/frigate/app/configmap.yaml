@@ -24,6 +24,16 @@ data:
     ffmpeg:
       hwaccel_args: preset-nvidia
 
+    # go2rtc restream - required for the Live view to use MSE (native
+    # resolution/fps + audio) instead of the video-only jsmpeg fallback.
+    # driveway's camera has an AAC audio track (verified via ffprobe),
+    # directly MSE-compatible with no transcoding needed. garage has no
+    # audio track at all, so it's left off this list.
+    go2rtc:
+      streams:
+        driveway:
+          - rtsp://192.168.1.161:554/s0
+
     detect:
       enabled: true
 
