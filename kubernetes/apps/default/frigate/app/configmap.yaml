@@ -31,7 +31,7 @@ data:
       enabled: true
       retain:
         days: 7
-        mode: motion
+        mode: all
       events:
         retain:
           default: 30
@@ -50,6 +50,9 @@ data:
         detect:
           width: 640
           height: 360
+        record:
+          retain:
+            mode: motion
       garage:
         ffmpeg:
           inputs:
