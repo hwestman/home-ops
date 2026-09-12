@@ -31,7 +31,7 @@ data:
       enabled: true
       retain:
         days: 7
-        mode: all
+        mode: motion
       events:
         retain:
           default: 30
