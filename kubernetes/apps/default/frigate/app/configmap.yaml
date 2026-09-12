@@ -29,12 +29,15 @@ data:
 
     record:
       enabled: true
-      retain:
+      motion:
         days: 7
-        mode: all
-      events:
+      alerts:
         retain:
-          default: 30
+          days: 30
+          mode: motion
+      detections:
+        retain:
+          days: 30
           mode: motion
 
     cameras:
@@ -50,9 +53,8 @@ data:
         detect:
           width: 640
           height: 360
-        record:
-          retain:
-            mode: motion
+        # No continuous recording - motion-only (inherits the global
+        # record.motion block above).
       garage:
         ffmpeg:
           inputs:
@@ -63,3 +65,6 @@ data:
         detect:
           width: 1920
           height: 1080
+        record:
+          continuous:
+            days: 7
