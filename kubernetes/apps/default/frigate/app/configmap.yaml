@@ -50,15 +50,19 @@ data:
 
     record:
       enabled: true
-      motion:
-        days: 7
+      # No independent motion-based retention (default: 0 days) - only
+      # footage tied to an actual alert/detection review item is kept.
+      # This was previously set to 7 days and was filling the 40Gi media
+      # PVC in ~1 day, since Frigate's default motion sensitivity treats
+      # nearly all outdoor activity (trees, headlights, traffic) as
+      # "motion" independent of whether an object was ever recognized.
       alerts:
         retain:
           days: 30
           mode: motion
       detections:
         retain:
-          days: 30
+          days: 0
           mode: motion
 
     cameras:
