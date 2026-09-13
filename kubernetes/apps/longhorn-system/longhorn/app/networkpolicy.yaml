@@ -1,0 +1,26 @@
+---
+# Longhorn's own Helm chart ships a NetworkPolicy on longhorn-manager pods
+# that only allows ingress from other longhorn-internal pods. This adds an
+# allow rule for vmagent (observability namespace) to scrape /metrics on
+# port 9500 -- additive, doesn't touch the Helm-managed policy.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: longhorn-manager-allow-monitoring
+spec:
+  podSelector:
+    matchLabels:
+      app: longhorn-manager
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: observability
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: vmagent
+      ports:
+        - protocol: TCP
+          port: 9500

@@ -1,0 +1,41 @@
+---
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMRule
+metadata:
+  name: longhorn
+spec:
+  groups:
+    - name: longhorn.rules
+      rules:
+        - alert: LonghornVolumeUsageWarning
+          expr: 100 * longhorn_volume_actual_size_bytes / longhorn_volume_capacity_bytes > 85
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: Longhorn volume {{ $labels.volume }} is over 85% full.
+            description: 'Volume {{ $labels.volume }} (PVC {{ $labels.pvc_namespace }}/{{ $labels.pvc }}) is {{ printf "%.1f" $value }}% full.'
+        - alert: LonghornVolumeUsageCritical
+          expr: 100 * longhorn_volume_actual_size_bytes / longhorn_volume_capacity_bytes > 95
+          for: 10m
+          labels:
+            severity: critical
+          annotations:
+            summary: Longhorn volume {{ $labels.volume }} is over 95% full.
+            description: 'Volume {{ $labels.volume }} (PVC {{ $labels.pvc_namespace }}/{{ $labels.pvc }}) is {{ printf "%.1f" $value }}% full.'
+        - alert: LonghornNodeStorageWarning
+          expr: 100 * longhorn_node_storage_usage_bytes / longhorn_node_storage_capacity_bytes > 85
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: Longhorn storage on node {{ $labels.node }} is over 85% full.
+            description: 'Node {{ $labels.node }}''s Longhorn-managed disk is {{ printf "%.1f" $value }}% full — replicas on this node are at risk regardless of individual volume size.'
+        - alert: LonghornNodeStorageCritical
+          expr: 100 * longhorn_node_storage_usage_bytes / longhorn_node_storage_capacity_bytes > 95
+          for: 10m
+          labels:
+            severity: critical
+          annotations:
+            summary: Longhorn storage on node {{ $labels.node }} is over 95% full.
+            description: 'Node {{ $labels.node }}''s Longhorn-managed disk is {{ printf "%.1f" $value }}% full — replicas on this node are at risk regardless of individual volume size.'
