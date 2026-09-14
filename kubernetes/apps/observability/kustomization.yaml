@@ -8,5 +8,6 @@ components:
 
 resources:
   - ./namespace.yaml
+  - ./alertmanager-ntfy/ks.yaml
   - ./snmp-exporter/ks.yaml
   - ./victoria-metrics-k8s-stack/ks.yaml

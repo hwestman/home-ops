@@ -8,9 +8,21 @@ spec:
     kind: OCIRepository
     name: victoria-metrics-k8s-stack
   interval: 1h
+  valuesFrom:
+    - kind: Secret
+      name: victoria-metrics-k8s-stack-alertmanager-values
+      valuesKey: values.yaml
   values:
     defaultDashboards:
       enabled: true
+    # Talos control-plane components (scheduler, controller-manager) don't
+    # expose metrics endpoints reachable by the chart's default scrape
+    # config, so leaving these enabled only produces permanent
+    # TargetDown/InstanceUnreachable noise.
+    kubeControllerManager:
+      enabled: false
+    kubeScheduler:
+      enabled: false
     vmsingle:
       spec:
         retentionPeriod: "14d"
@@ -41,6 +53,17 @@ spec:
                 - action: drop
                   sourceLabels: [__name__]
                   regex: "workqueue_.*|informer_.*|apiserver_storage_list_.*|apiextensions_openapi_v2_regeneration_count|kubernetes_feature_enabled"
+    # Default apiserver burn-rate/histogram/SLO alert rules need the
+    # _bucket histogram metrics dropped above - disable them rather than
+    # let them fire permanently as RecordingRulesNoData.
+    defaultRules:
+      groups:
+        kube-apiserver-burnrate.rules:
+          enabled: false
+        kube-apiserver-histogram.rules:
+          enabled: false
+        kube-apiserver-slos:
+          enabled: false
     kubeEtcd:
       vmScrape:
         spec:

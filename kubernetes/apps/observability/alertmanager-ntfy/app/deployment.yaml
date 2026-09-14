@@ -1,0 +1,52 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alertmanager-ntfy
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: alertmanager-ntfy
+  template:
+    metadata:
+      labels:
+        app: alertmanager-ntfy
+    spec:
+      containers:
+        - name: alertmanager-ntfy
+          image: ghcr.io/alexbakker/alertmanager-ntfy:1.2.1
+          args:
+            - --configs=/etc/alertmanager-ntfy/config.yml
+          ports:
+            - name: http
+              containerPort: 8000
+          volumeMounts:
+            - name: config
+              mountPath: /etc/alertmanager-ntfy
+              readOnly: true
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: config
+          secret:
+            secretName: alertmanager-ntfy-config
