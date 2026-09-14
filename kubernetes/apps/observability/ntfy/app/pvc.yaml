@@ -4,7 +4,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: ntfy
 spec:
-  storageClassName: longhorn
+  storageClassName: local-path
   accessModes:
     - ReadWriteOnce
   resources:
