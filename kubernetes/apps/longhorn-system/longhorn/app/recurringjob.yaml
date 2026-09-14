@@ -1,0 +1,22 @@
+---
+# Longhorn doesn't reclaim space from deleted blocks by default
+# (unmapMarkSnapChainRemoved: ignored). Workloads with heavy write+delete
+# churn - like frigate rotating video footage - end up with actualSize
+# climbing toward the volume's capacity even though live data stays small,
+# eventually causing real write failures once actualSize hits the cap.
+#
+# Every volume implicitly belongs to the "default" recurring-job group
+# unless it's been assigned to a specific one, so this applies to all
+# longhorn-backed volumes (currently just frigate-media and
+# frigate-config) without needing per-volume labeling.
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: frigate-trim
+  namespace: longhorn-system
+spec:
+  task: "filesystem-trim"
+  cron: "0 3 * * *"
+  groups: ["default"]
+  retain: 1
+  concurrency: 1

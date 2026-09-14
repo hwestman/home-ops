@@ -8,3 +8,5 @@ resources:
   - ./vmservicescrape.yaml
   - ./vmrule.yaml
   - ./networkpolicy.yaml
+  - ./recurringjob.yaml
+  - ./clusterrolebinding.yaml
