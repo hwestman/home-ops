@@ -15,14 +15,32 @@ spec:
   values:
     defaultDashboards:
       enabled: true
-    # Talos control-plane components (scheduler, controller-manager) don't
-    # expose metrics endpoints reachable by the chart's default scrape
-    # config, so leaving these enabled only produces permanent
-    # TargetDown/InstanceUnreachable noise.
+    # Talos runs these bound to 0.0.0.0 (not localhost-only) and they're
+    # reachable with the standard serviceaccount bearer token - the chart's
+    # default TargetDown/InstanceUnreachable noise was from the pod-selector
+    # Service never matching (same root cause as kubeEtcd), not from the
+    # metrics actually being unreachable. Their serving certs are Talos's
+    # own PKI, not the Kubernetes API server CA, so skip verification
+    # rather than trying to source the right CA for two internal-only
+    # scrape targets.
     kubeControllerManager:
-      enabled: false
+      vmScrape:
+        spec:
+          endpoints:
+            - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+              port: http-metrics
+              scheme: https
+              tlsConfig:
+                insecureSkipVerify: true
     kubeScheduler:
-      enabled: false
+      vmScrape:
+        spec:
+          endpoints:
+            - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+              port: http-metrics
+              scheme: https
+              tlsConfig:
+                insecureSkipVerify: true
     vmsingle:
       spec:
         retentionPeriod: "14d"
