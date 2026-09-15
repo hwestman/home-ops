@@ -13,3 +13,37 @@ spec:
     - backendRefs:
         - name: grafana
           port: 80
+---
+# vmalert's own UI: live view of every rule group and its alerts/state,
+# without needing to query its API by hand.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: vmalert
+spec:
+  hostnames:
+    - "vmalert.${SECRET_DOMAIN}"
+  parentRefs:
+    - name: envoy-internal
+      namespace: network
+  rules:
+    - backendRefs:
+        - name: vmalert-victoria-metrics-k8s-stack
+          port: 8080
+---
+# Alertmanager's own UI: active/silenced/inhibited alerts, grouping,
+# and where to manage silences.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: vmalertmanager
+spec:
+  hostnames:
+    - "vmalertmanager.${SECRET_DOMAIN}"
+  parentRefs:
+    - name: envoy-internal
+      namespace: network
+  rules:
+    - backendRefs:
+        - name: vmalertmanager-victoria-metrics-k8s-stack
+          port: 9093
