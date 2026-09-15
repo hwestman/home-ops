@@ -51,6 +51,8 @@ spec:
         ports:
           http:
             port: *port
+    defaultPodOptions:
+      automountServiceAccountToken: true
     route:
       app:
         kind: HTTPRoute
@@ -61,7 +63,8 @@ spec:
           - name: envoy-internal
             namespace: network
     serviceAccount:
-      homepage: {}
+      homepage:
+        automountServiceAccountToken: true
     # Read-only access so the Kubernetes/Gateway API service discovery
     # (kubernetes.yaml: mode: cluster) can populate the dashboard from
     # gethomepage.dev/* annotations on Services/HTTPRoutes cluster-wide.
