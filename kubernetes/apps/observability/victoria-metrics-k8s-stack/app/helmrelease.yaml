@@ -75,16 +75,22 @@ spec:
       # Talos runs etcd as a native host process, not a labeled Kubernetes
       # pod, so the chart's default component=etcd pod-selector service
       # never matches anything. Point it at the node directly instead.
+      #
+      # Port 2379 is etcd's mTLS client API - Talos's etcd CA isn't the
+      # Kubernetes API server CA, so bearer-token/serviceaccount-CA auth
+      # (the chart's default) fails certificate verification against it.
+      # Talos machine config already exposes a separate, unauthenticated
+      # metrics-only listener on 2381 (etcd.extraArgs.listen-metrics-urls)
+      # specifically to avoid needing etcd's own client certs in-cluster.
       endpoints:
         - 192.168.1.75
+      service:
+        port: 2381
+        targetPort: 2381
       vmScrape:
         spec:
           endpoints:
-            - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
-              port: http-metrics
-              scheme: https
-              tlsConfig:
-                caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+            - port: http-metrics
               metricRelabelConfigs:
                 - action: drop
                   sourceLabels: [__name__]
