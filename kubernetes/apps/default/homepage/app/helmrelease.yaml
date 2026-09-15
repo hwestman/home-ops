@@ -57,10 +57,16 @@ spec:
       app:
         kind: HTTPRoute
         hostnames:
-          - "${SECRET_DOMAIN}"
           - "homepage.${SECRET_DOMAIN}"
         parentRefs:
           - name: envoy-internal
+            namespace: network
+      external:
+        kind: HTTPRoute
+        hostnames:
+          - "${SECRET_DOMAIN}"
+        parentRefs:
+          - name: envoy-external
             namespace: network
     serviceAccount:
       homepage:
