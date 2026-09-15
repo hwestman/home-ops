@@ -1,8 +1,4 @@
 ---
-# NOTE: the controller only serves self-signed HTTPS on 8443. Envoy Gateway
-# needs a BackendTLSPolicy (or equivalent CA trust) to speak TLS to this
-# backend -- unverified in this repo yet. Until that's sorted, reach the UI
-# directly at https://192.168.1.222:8443 rather than through this route.
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:

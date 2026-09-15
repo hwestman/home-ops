@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: unifi-init
+data:
+  # run-parts (which the image's entrypoint uses for /unifi/init.d) skips
+  # filenames containing a dot, hence no extension here.
+  import-cert: |
+    #!/usr/bin/env bash
+    import_cert

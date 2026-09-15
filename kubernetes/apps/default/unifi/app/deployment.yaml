@@ -28,6 +28,18 @@ spec:
         - name: unifi
           image: jacobalberty/unifi:v7.4.162
           imagePullPolicy: IfNotPresent
+          env:
+            # Replaces Tomcat's self-signed cert with the cert-manager one so
+            # Envoy Gateway's BackendTLSPolicy can validate it against the
+            # public Let's Encrypt root instead of needing a custom CA bundle.
+            - name: CERTDIR
+              value: /unifi/cert
+            - name: CERTNAME
+              value: cert.pem
+            - name: CERT_PRIVATE_NAME
+              value: privkey.pem
+            - name: CERT_IS_CHAIN
+              value: "true"
           resources:
             requests:
               memory: "768Mi"
@@ -59,7 +71,23 @@ spec:
           volumeMounts:
             - mountPath: /unifi
               name: unifi-data
+            - mountPath: /unifi/cert
+              name: unifi-cert
+            - mountPath: /unifi/init.d
+              name: unifi-init
       volumes:
         - name: unifi-data
           persistentVolumeClaim:
             claimName: unifi-data
+        - name: unifi-cert
+          secret:
+            secretName: unifi-tls
+            items:
+              - key: tls.crt
+                path: cert.pem
+              - key: tls.key
+                path: privkey.pem
+        - name: unifi-init
+          configMap:
+            name: unifi-init
+            defaultMode: 0o755
