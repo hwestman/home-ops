@@ -9,4 +9,3 @@ resources:
   - ./vmrule.yaml
   - ./networkpolicy.yaml
   - ./recurringjob.yaml
-  - ./clusterrolebinding.yaml
