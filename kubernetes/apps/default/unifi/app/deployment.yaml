@@ -73,8 +73,6 @@ spec:
               name: unifi-data
             - mountPath: /unifi/cert
               name: unifi-cert
-            - mountPath: /unifi/init.d
-              name: unifi-init
       volumes:
         - name: unifi-data
           persistentVolumeClaim:
@@ -87,7 +85,9 @@ spec:
                 path: cert.pem
               - key: tls.key
                 path: privkey.pem
-        - name: unifi-init
-          configMap:
-            name: unifi-init
-            defaultMode: 0o755
+              # This cert-manager/issuer combination doesn't populate a
+              # separate ca.crt; tls.crt already bundles leaf+intermediate,
+              # so project it again as the chain.pem the import script
+              # unconditionally expects to find alongside cert.pem.
+              - key: tls.crt
+                path: chain.pem
