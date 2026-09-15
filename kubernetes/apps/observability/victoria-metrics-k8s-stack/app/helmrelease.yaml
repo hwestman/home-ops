@@ -113,6 +113,30 @@ spec:
                 - action: drop
                   sourceLabels: [__name__]
                   regex: "etcd_.*_bucket"
+    # The chart's default kubelet/cadvisor relabeling maps every Kubernetes
+    # node label onto every single container-level metric via a blanket
+    # labelmap. Talos stamps ~10 verbose extensions.talos.dev/* labels
+    # (extension versions, kernel version) on each node, which rides along
+    # on every metric this scrapes -- and, worse, on every alert derived
+    # from them. alertmanager-ntfy turns all alert labels into ntfy tags
+    # unconditionally, so CPUThrottlingHigh (already one of the more
+    # label-heavy default alerts) blew past ntfy's 512-byte tag limit and
+    # got silently rejected, breaking notification delivery entirely.
+    # Dropping these (plus the long-deprecated beta.kubernetes.io/*
+    # duplicates of kubernetes.io/arch and kubernetes.io/os) after the
+    # labelmap step fixes both the cardinality bloat and the ntfy rejection.
+    kubelet:
+      vmScrape:
+        spec:
+          relabelConfigs:
+            - action: labelmap
+              regex: __meta_kubernetes_node_label_(.+)
+            - action: labeldrop
+              regex: "extensions_talos_dev_.*|beta_kubernetes_io_.*"
+            - sourceLabels: [__metrics_path__]
+              targetLabel: metrics_path
+            - targetLabel: job
+              replacement: kubelet
     vlsingle:
       enabled: true
       spec:
