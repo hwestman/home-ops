@@ -10,4 +10,5 @@ resources:
   - ./namespace.yaml
   - ./echo/ks.yaml
   - ./frigate/ks.yaml
+  - ./homepage/ks.yaml
   - ./unifi/ks.yaml

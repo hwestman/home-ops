@@ -1,0 +1,113 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: homepage
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: homepage
+  interval: 1h
+  values:
+    controllers:
+      homepage:
+        strategy: RollingUpdate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/gethomepage/homepage
+              tag: v2.3.0
+            env:
+              HOMEPAGE_ALLOWED_HOSTS: "homepage.${SECRET_DOMAIN}"
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/healthcheck
+                    port: &port 3000
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 10m
+                memory: 128Mi
+              limits:
+                memory: 512Mi
+    service:
+      app:
+        ports:
+          http:
+            port: *port
+    route:
+      app:
+        kind: HTTPRoute
+        hostnames:
+          - "homepage.${SECRET_DOMAIN}"
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+    serviceAccount:
+      homepage: {}
+    # Read-only access so the Kubernetes/Gateway API service discovery
+    # (kubernetes.yaml: mode: cluster) can populate the dashboard from
+    # gethomepage.dev/* annotations on Services/HTTPRoutes cluster-wide.
+    rbac:
+      roles:
+        homepage:
+          type: ClusterRole
+          rules:
+            - apiGroups: [""]
+              resources: ["namespaces", "pods", "nodes", "services"]
+              verbs: ["get", "list"]
+            - apiGroups: ["extensions", "networking.k8s.io"]
+              resources: ["ingresses"]
+              verbs: ["get", "list"]
+            - apiGroups: ["gateway.networking.k8s.io"]
+              resources: ["httproutes", "gateways"]
+              verbs: ["get", "list"]
+            - apiGroups: ["metrics.k8s.io"]
+              resources: ["nodes", "pods"]
+              verbs: ["get", "list"]
+      bindings:
+        homepage:
+          type: ClusterRoleBinding
+          roleRef:
+            identifier: homepage
+          subjects:
+            - identifier: homepage
+    configMaps:
+      config:
+        data:
+          settings.yaml: |
+            title: Homelab
+          bookmarks.yaml: |
+            []
+          services.yaml: |
+            []
+          widgets.yaml: |
+            - resources:
+                cpu: true
+                memory: true
+                disk: /
+            - search:
+                provider: duckduckgo
+                target: _blank
+          kubernetes.yaml: |
+            mode: cluster
+            gateway: true
+    persistence:
+      config:
+        type: configMap
+        identifier: config
+        globalMounts:
+          - path: /app/config

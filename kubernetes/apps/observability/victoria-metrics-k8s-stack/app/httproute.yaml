@@ -3,6 +3,12 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: grafana
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Grafana"
+    gethomepage.dev/description: "Metrics dashboards"
+    gethomepage.dev/group: "Observability"
+    gethomepage.dev/icon: "grafana.svg"
 spec:
   hostnames:
     - "grafana.${SECRET_DOMAIN}"
@@ -20,6 +26,12 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: vmalert
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "VMAlert"
+    gethomepage.dev/description: "Alert rule groups and state"
+    gethomepage.dev/group: "Observability"
+    gethomepage.dev/icon: "victoriametrics.svg"
 spec:
   hostnames:
     - "vmalert.${SECRET_DOMAIN}"
@@ -37,6 +49,12 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: vmalertmanager
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Alertmanager"
+    gethomepage.dev/description: "Active alerts and silences"
+    gethomepage.dev/group: "Observability"
+    gethomepage.dev/icon: "alertmanager.svg"
 spec:
   hostnames:
     - "vmalertmanager.${SECRET_DOMAIN}"

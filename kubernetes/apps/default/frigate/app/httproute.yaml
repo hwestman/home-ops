@@ -3,6 +3,12 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: frigate
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Frigate"
+    gethomepage.dev/description: "NVR with realtime object detection"
+    gethomepage.dev/group: "Home"
+    gethomepage.dev/icon: "frigate.svg"
 spec:
   hostnames:
     - "frigate.${SECRET_DOMAIN}"
