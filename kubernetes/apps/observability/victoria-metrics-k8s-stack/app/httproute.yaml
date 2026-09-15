@@ -15,8 +15,6 @@ spec:
   parentRefs:
     - name: envoy-internal
       namespace: network
-    - name: envoy-external
-      namespace: network
   rules:
     - backendRefs:
         - name: grafana
@@ -40,8 +38,6 @@ spec:
   parentRefs:
     - name: envoy-internal
       namespace: network
-    - name: envoy-external
-      namespace: network
   rules:
     - backendRefs:
         - name: vmalert-victoria-metrics-k8s-stack
@@ -64,8 +60,6 @@ spec:
     - "vmalertmanager.${SECRET_DOMAIN}"
   parentRefs:
     - name: envoy-internal
-      namespace: network
-    - name: envoy-external
       namespace: network
   rules:
     - backendRefs:
