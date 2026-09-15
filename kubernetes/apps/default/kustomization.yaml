@@ -11,4 +11,5 @@ resources:
   - ./echo/ks.yaml
   - ./frigate/ks.yaml
   - ./homepage/ks.yaml
+  - ./mariadb/ks.yaml
   - ./unifi/ks.yaml
