@@ -1,0 +1,66 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: unifi-poller
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: unifi-poller
+  template:
+    metadata:
+      labels:
+        app: unifi-poller
+    spec:
+      containers:
+        - name: unifi-poller
+          image: ghcr.io/unpoller/unpoller:v5.2.5
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: UP_UNIFI_DEFAULT_URL
+              value: "https://unifi.default.svc.cluster.local:8443"
+            - name: UP_UNIFI_DEFAULT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: unifi-poller-secret
+                  key: username
+            - name: UP_UNIFI_DEFAULT_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: unifi-poller-secret
+                  key: password
+            # The controller's cert (cert-manager) is issued for
+            # unifi.${SECRET_DOMAIN}, not this in-cluster Service DNS name,
+            # so hostname verification would fail regardless of the cert
+            # being valid. Internal-only traffic, so plaintext trust is fine.
+            - name: UP_UNIFI_DEFAULT_VERIFY_SSL
+              value: "false"
+            - name: UP_PROMETHEUS_DISABLE
+              value: "false"
+            - name: UP_INFLUXDB_DISABLE
+              value: "true"
+          ports:
+            - name: metrics
+              containerPort: 9130
+          resources:
+            requests:
+              cpu: 20m
+              memory: 32Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            initialDelaySeconds: 10
+            periodSeconds: 10

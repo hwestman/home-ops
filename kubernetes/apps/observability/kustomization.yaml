@@ -11,4 +11,5 @@ resources:
   - ./alertmanager-ntfy/ks.yaml
   - ./ntfy/ks.yaml
   - ./snmp-exporter/ks.yaml
+  - ./unifi-poller/ks.yaml
   - ./victoria-metrics-k8s-stack/ks.yaml
