@@ -29,6 +29,9 @@ spec:
                   httpGet:
                     path: /api/healthcheck
                     port: &port 3000
+                    httpHeaders:
+                      - name: Host
+                        value: "homepage.${SECRET_DOMAIN}"
                   initialDelaySeconds: 0
                   periodSeconds: 10
                   timeoutSeconds: 1
@@ -111,4 +114,13 @@ spec:
         type: configMap
         identifier: config
         globalMounts:
-          - path: /app/config
+          - path: /app/config/settings.yaml
+            subPath: settings.yaml
+          - path: /app/config/bookmarks.yaml
+            subPath: bookmarks.yaml
+          - path: /app/config/services.yaml
+            subPath: services.yaml
+          - path: /app/config/widgets.yaml
+            subPath: widgets.yaml
+          - path: /app/config/kubernetes.yaml
+            subPath: kubernetes.yaml
