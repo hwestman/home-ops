@@ -111,10 +111,11 @@ spec:
                 - Cloudflare:
                     - icon: cloudflare.svg
                       href: https://dash.cloudflare.com/
+            - Network:
                 - Router:
                     - icon: mdi-router-network
                       href: http://192.168.1.1/
-            - Home Automation:
+            - Home:
                 - Zigbee2MQTT:
                     - icon: zigbee2mqtt.svg
                       href: http://192.168.1.56:8080/
