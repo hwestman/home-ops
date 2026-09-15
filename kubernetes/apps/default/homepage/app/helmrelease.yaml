@@ -72,16 +72,16 @@ spec:
           rules:
             - apiGroups: [""]
               resources: ["namespaces", "pods", "nodes", "services"]
-              verbs: ["get", "list"]
+              verbs: ["get", "list", "watch"]
             - apiGroups: ["extensions", "networking.k8s.io"]
               resources: ["ingresses"]
-              verbs: ["get", "list"]
+              verbs: ["get", "list", "watch"]
             - apiGroups: ["gateway.networking.k8s.io"]
               resources: ["httproutes", "gateways"]
-              verbs: ["get", "list"]
+              verbs: ["get", "list", "watch"]
             - apiGroups: ["metrics.k8s.io"]
               resources: ["nodes", "pods"]
-              verbs: ["get", "list"]
+              verbs: ["get", "list", "watch"]
       bindings:
         homepage:
           type: ClusterRoleBinding
