@@ -9,6 +9,7 @@ metadata:
     gethomepage.dev/description: "UniFi Network Controller"
     gethomepage.dev/group: "Network"
     gethomepage.dev/icon: "unifi.svg"
+    gethomepage.dev/pod-selector: "app=unifi"
 spec:
   hostnames:
     - "unifi.${SECRET_DOMAIN}"

@@ -9,6 +9,7 @@ metadata:
     gethomepage.dev/description: "NVR with realtime object detection"
     gethomepage.dev/group: "Home"
     gethomepage.dev/icon: "frigate.svg"
+    gethomepage.dev/pod-selector: "app=frigate"
 spec:
   hostnames:
     - "frigate.${SECRET_DOMAIN}"
