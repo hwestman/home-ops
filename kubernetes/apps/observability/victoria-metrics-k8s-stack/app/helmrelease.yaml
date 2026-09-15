@@ -57,6 +57,13 @@ spec:
     # _bucket histogram metrics dropped above - disable them rather than
     # let them fire permanently as RecordingRulesNoData.
     defaultRules:
+      # count(up == 0) returns no data point (not zero) when nothing is
+      # down - PromQL/MetricsQL quirk, not a misconfiguration - so this
+      # rule trips RecordingRulesNoData precisely when everything is
+      # healthy. Not useful here.
+      rules:
+        count:up0:
+          enabled: false
       groups:
         kube-apiserver-burnrate.rules:
           enabled: false
@@ -65,6 +72,11 @@ spec:
         kube-apiserver-slos:
           enabled: false
     kubeEtcd:
+      # Talos runs etcd as a native host process, not a labeled Kubernetes
+      # pod, so the chart's default component=etcd pod-selector service
+      # never matches anything. Point it at the node directly instead.
+      endpoints:
+        - 192.168.1.75
       vmScrape:
         spec:
           endpoints:
