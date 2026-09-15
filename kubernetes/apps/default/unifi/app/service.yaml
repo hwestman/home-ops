@@ -1,0 +1,46 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: unifi
+  # annotations:
+  #   # CUTOVER STEP -- uncomment only after the old cluster's Service is
+  #   # deleted (releasing MetalLB's claim). Pins the same IP the old
+  #   # service used, so device inform URLs (http://192.168.1.222:8080/inform)
+  #   # never need to change. MetalLB and Cilium L2 announcements cannot
+  #   # both claim this IP at once.
+  #   lbipam.cilium.io/ips: "192.168.1.222"
+  labels:
+    app: unifi
+spec:
+  # Starts as ClusterIP for initial deploy/restore/validation with zero LAN
+  # impact. At cutover: switch to LoadBalancer, uncomment the annotation
+  # above, and uncomment externalTrafficPolicy below (invalid on ClusterIP,
+  # required on LoadBalancer -- default Cluster policy SNATs cross-node
+  # traffic, which would make every device appear to the controller as
+  # coming from one internal IP and break the client list / topology view).
+  type: ClusterIP
+  # externalTrafficPolicy: Local
+  ports:
+    - name: inform
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+    - name: stun
+      port: 3478
+      targetPort: 3478
+      protocol: UDP
+    - name: portal
+      port: 8880
+      targetPort: 8880
+      protocol: TCP
+    - name: speedtest
+      port: 6789
+      targetPort: 6789
+      protocol: TCP
+    - name: webui
+      port: 8443
+      targetPort: 8443
+      protocol: TCP
+  selector:
+    app: unifi

@@ -1,0 +1,65 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: unifi
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: unifi
+  template:
+    metadata:
+      labels:
+        app: unifi
+    spec:
+      # Image runs as uid/gid 999; the Longhorn volume mounts root-owned
+      # otherwise, and the controller fails to write to /unifi on first boot.
+      securityContext:
+        fsGroup: 999
+      containers:
+        # Pinned to the exact version confirmed running on the old cluster's
+        # controller (j-burg11, checked via its /status endpoint) so the
+        # restored backup loads cleanly. Stage upgrades forward from here
+        # afterward -- Ubiquiti gates upgrades to specific version
+        # checkpoints, so don't jump straight to latest.
+        - name: unifi
+          image: jacobalberty/unifi:v7.4.162
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              memory: "768Mi"
+              cpu: "250m"
+            limits:
+              # Default JVM_MAX_HEAP_SIZE is 1024M -- a 1Gi container limit
+              # leaves no room for metaspace/off-heap, the embedded MongoDB
+              # process, or OS overhead. 2Gi gives real headroom.
+              memory: "2Gi"
+              cpu: "1000m"
+          livenessProbe:
+            httpGet:
+              path: /status
+              port: 8443
+              scheme: HTTPS
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /status
+              port: 8443
+              scheme: HTTPS
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          volumeMounts:
+            - mountPath: /unifi
+              name: unifi-data
+      volumes:
+        - name: unifi-data
+          persistentVolumeClaim:
+            claimName: unifi-data
