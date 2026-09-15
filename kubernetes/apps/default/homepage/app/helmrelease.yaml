@@ -111,19 +111,21 @@ spec:
                 - Cloudflare:
                     - icon: cloudflare.svg
                       href: https://dash.cloudflare.com/
+          services.yaml: |
             - Network:
                 - Router:
-                    - icon: mdi-router-network
-                      href: http://192.168.1.1/
+                    icon: mdi-router-network
+                    href: http://192.168.1.1/
+                    description: Router admin
             - Home:
                 - Zigbee2MQTT:
-                    - icon: zigbee2mqtt.svg
-                      href: http://192.168.1.56:8080/
+                    icon: zigbee2mqtt.svg
+                    href: http://192.168.1.56:8080/
+                    description: Zigbee network coordinator
                 - ZWaveJS-UI:
-                    - icon: z-wave-js-ui.svg
-                      href: http://192.168.1.157:8091/#/
-          services.yaml: |
-            []
+                    icon: z-wave-js-ui.svg
+                    href: http://192.168.1.157:8091/#/
+                    description: Z-Wave network coordinator
           widgets.yaml: |
             - kubernetes:
                 cluster:
