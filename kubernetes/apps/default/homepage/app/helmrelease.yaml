@@ -114,6 +114,13 @@ spec:
                 - Router:
                     - icon: mdi-router-network
                       href: http://192.168.1.1/
+            - Home Automation:
+                - Zigbee2MQTT:
+                    - icon: zigbee2mqtt.svg
+                      href: http://192.168.1.56:8080/
+                - ZWaveJS-UI:
+                    - icon: z-wave-js-ui.svg
+                      href: http://192.168.1.157:8091/#/
           services.yaml: |
             []
           widgets.yaml: |
