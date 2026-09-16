@@ -25,6 +25,11 @@ spec:
           env:
             - name: TZ
               value: Europe/Oslo
+            - name: GITHUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: home-assistant-github
+                  key: token
           securityContext:
             runAsUser: 0
           ports:
