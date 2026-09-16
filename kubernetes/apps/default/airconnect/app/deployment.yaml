@@ -1,0 +1,33 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airconnect
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: airconnect
+  template:
+    metadata:
+      labels:
+        app: airconnect
+    spec:
+      # mDNS/multicast discovery (bridging AirPlay to Chromecast) needs the
+      # pod reachable on the LAN directly, not via the CNI overlay - same
+      # reasoning as home-assistant's hostNetwork usage.
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+        - name: airconnect
+          image: 1activegeek/airconnect:1.0.8
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: TZ
+              value: Europe/Oslo
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              memory: 256Mi

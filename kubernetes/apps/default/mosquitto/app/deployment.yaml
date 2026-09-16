@@ -1,0 +1,63 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mosquitto
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: mosquitto
+  template:
+    metadata:
+      labels:
+        app: mosquitto
+    spec:
+      containers:
+        - name: mosquitto
+          image: eclipse-mosquitto:2.0.15
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 0
+          ports:
+            - containerPort: 1883
+              name: mqtt
+              protocol: TCP
+            - containerPort: 9090
+              name: mqtt-ws
+              protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: 1883
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            tcpSocket:
+              port: 1883
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 2
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          volumeMounts:
+            - name: data
+              mountPath: /mosquitto/data
+            - name: config
+              mountPath: /mosquitto/config
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: mosquitto-pvc
+        - name: config
+          configMap:
+            name: mosquitto-conf
