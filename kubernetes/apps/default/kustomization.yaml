@@ -10,6 +10,8 @@ resources:
   - ./namespace.yaml
   - ./echo/ks.yaml
   - ./frigate/ks.yaml
+  - ./home-assistant/ks.yaml
+  - ./home-assistant-hytta/ks.yaml
   - ./homepage/ks.yaml
   - ./mariadb/ks.yaml
   - ./unifi/ks.yaml

@@ -1,0 +1,110 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: home-assistant-hytta
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: home-assistant-hytta
+  template:
+    metadata:
+      labels:
+        app: home-assistant-hytta
+    spec:
+      containers:
+        - name: home-assistant
+          # Pinned to the old cluster's stale version deliberately - a
+          # 2023.10.1 -> current jump is its own upgrade-risk project,
+          # not something to fold into the cluster migration itself.
+          image: homeassistant/home-assistant:2023.10.1
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: TZ
+              value: Europe/Oslo
+          securityContext:
+            runAsUser: 0
+          ports:
+            - containerPort: 8123
+              name: http
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8123
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8123
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+            limits:
+              cpu: "2"
+              memory: 2Gi
+          volumeMounts:
+            - name: home-assistant-hytta
+              mountPath: /config
+        - name: ha-code
+          image: codercom/code-server:latest
+          imagePullPolicy: IfNotPresent
+          args:
+            - --port=8080
+            - --extensions-dir=/config/.vscode
+            - --user-data-dir=/config/.vscode
+            - /config
+          workingDir: /config
+          env:
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ha-code-password
+                  key: password
+          securityContext:
+            runAsUser: 0
+          ports:
+            - containerPort: 8080
+              name: code-server
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 2
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          volumeMounts:
+            - name: home-assistant-hytta
+              mountPath: /config
+      volumes:
+        - name: home-assistant-hytta
+          persistentVolumeClaim:
+            claimName: home-assistant-hytta-pvc

@@ -1,0 +1,26 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: home-assistant
+spec:
+  dependsOn:
+    - name: mariadb
+  healthChecks:
+    - apiVersion: apps/v1
+      kind: StatefulSet
+      name: home-assistant
+      namespace: default
+  interval: 1h
+  path: ./kubernetes/apps/default/home-assistant/app
+  postBuild:
+    substituteFrom:
+      - name: cluster-secrets
+        kind: Secret
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: default
+  wait: false

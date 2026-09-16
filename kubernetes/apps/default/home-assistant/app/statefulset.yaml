@@ -1,0 +1,152 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: home-assistant
+spec:
+  serviceName: home-assistant
+  replicas: 1
+  selector:
+    matchLabels:
+      app: home-assistant
+  template:
+    metadata:
+      labels:
+        app: home-assistant
+    spec:
+      # mDNS discovery (Sonos, Chromecast) needs the pod reachable on the
+      # LAN directly, not via the CNI overlay.
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+        - name: home-assistant
+          image: ghcr.io/home-assistant/home-assistant:2025.12.2
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: TZ
+              value: Europe/Oslo
+          securityContext:
+            runAsUser: 0
+          ports:
+            - containerPort: 8123
+              name: http
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8123
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8123
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+            limits:
+              cpu: "2"
+              memory: 2Gi
+          volumeMounts:
+            - name: home-assistant
+              mountPath: /config
+        - name: esphome
+          image: ghcr.io/esphome/esphome
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: TZ
+              value: Europe/Oslo
+          securityContext:
+            runAsUser: 0
+            allowPrivilegeEscalation: false
+          ports:
+            - containerPort: 6052
+              name: esphome-web
+              protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: 6052
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            tcpSocket:
+              port: 6052
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 2
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          volumeMounts:
+            - name: esphome
+              mountPath: /config
+        - name: ha-code
+          image: codercom/code-server:latest
+          imagePullPolicy: IfNotPresent
+          args:
+            - --port=8080
+            - --extensions-dir=/config/.vscode
+            - --user-data-dir=/config/.vscode
+            - /config
+          workingDir: /config
+          env:
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ha-code-password
+                  key: password
+          securityContext:
+            runAsUser: 0
+          ports:
+            - containerPort: 8080
+              name: code-server
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 2
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          volumeMounts:
+            - name: home-assistant
+              mountPath: /config
+            - name: esphome
+              mountPath: /config/esphome
+      volumes:
+        - name: home-assistant
+          persistentVolumeClaim:
+            claimName: home-assistant-pvc
+        - name: esphome
+          persistentVolumeClaim:
+            claimName: esphome-pvc
