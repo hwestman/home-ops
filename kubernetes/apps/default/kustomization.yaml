@@ -13,5 +13,6 @@ resources:
   - ./home-assistant/ks.yaml
   - ./home-assistant-hytta/ks.yaml
   - ./homepage/ks.yaml
+  - ./hook-proxy/ks.yaml
   - ./mariadb/ks.yaml
   - ./unifi/ks.yaml

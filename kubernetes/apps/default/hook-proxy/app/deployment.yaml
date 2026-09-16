@@ -1,0 +1,42 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hook-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hook-proxy
+  template:
+    metadata:
+      labels:
+        app: hook-proxy
+    spec:
+      containers:
+        - name: hook-proxy
+          image: hwestman/hook-proxy:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: TZ
+              value: Europe/Oslo
+            # Points at this cluster's own home-assistant Service - keep in
+            # sync with whichever HA instance is currently authoritative
+            # during the migration coexistence period.
+            - name: ASPNETCORE_HABaseURL
+              value: http://home-assistant:8123
+            - name: ASPNETCORE_HAToken
+              valueFrom:
+                secretKeyRef:
+                  name: hook-proxy-secrets
+                  key: token
+          ports:
+            - containerPort: 80
+              name: http
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 10m
+              memory: 64Mi
+            limits:
+              memory: 128Mi
