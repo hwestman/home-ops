@@ -114,6 +114,11 @@ spec:
                 secretKeyRef:
                   name: ha-code-password
                   key: password
+            - name: GITHUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: home-assistant-github
+                  key: token
           securityContext:
             runAsUser: 0
           ports:
