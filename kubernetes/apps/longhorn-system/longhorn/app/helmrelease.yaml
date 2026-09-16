@@ -19,6 +19,22 @@ spec:
       # (see talos/all/72-longhorn-disk.yaml.tpl) — keeps Longhorn data off
       # the OS disk.
       defaultDataPath: /var/mnt/longhorn
+    # Cloudflare R2 (S3-compatible), offsite backup target - the old
+    # cluster's NAS backup target is down/possibly dead, and this
+    # single-node cluster has zero replica redundancy today, so this is
+    # the only real safety net until w11-2/w11-3 join. Region is a
+    # required but meaningless placeholder for R2 - "auto" is Cloudflare's
+    # own convention. Only specific volumes back up here (see
+    # recurringjob-backup.yaml), not everything - large, re-derivable data
+    # like Frigate's camera footage is deliberately excluded.
+    # NOTE: this belongs under defaultBackupStore, NOT defaultSettings -
+    # the chart's default-resource.yaml template only reads
+    # .Values.defaultBackupStore.*; defaultSettings.backupTarget is not a
+    # recognized key and silently does nothing. (Originally misplaced
+    # here 2026-09-16; caught and fixed same day.)
+    defaultBackupStore:
+      backupTarget: s3://longhorn-backup@auto/
+      backupTargetCredentialSecret: longhorn-r2-backup
     persistence:
       # local-path-provisioner stays the cluster default (non-critical data);
       # apps needing real persistence opt in via storageClassName: longhorn.

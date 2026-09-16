@@ -9,3 +9,5 @@ resources:
   - ./vmrule.yaml
   - ./networkpolicy.yaml
   - ./recurringjob.yaml
+  - ./recurringjob-backup.yaml
+  - ./secret.sops.yaml

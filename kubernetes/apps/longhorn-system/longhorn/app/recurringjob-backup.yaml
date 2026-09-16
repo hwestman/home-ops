@@ -1,0 +1,23 @@
+---
+# Offsite backup to Cloudflare R2 (see helmrelease.yaml for the backup
+# target config). Deliberately its own group, not "default" - unlike
+# frigate-trim, this should NOT apply to every volume implicitly. Only
+# volumes explicitly labeled
+# recurring-job-group.longhorn.io/offsite-backup=enabled (plus
+# recurring-job.longhorn.io/source=enabled) get backed up - see each app's
+# pvc.yaml for which ones: mariadb, home-assistant-pvc, esphome-pvc,
+# home-assistant-hytta-pvc, unifi-data, frigate-config (holds
+# model_cache/yolo.onnx - does NOT auto-regenerate, learned the hard way
+# 2026-09-16), mosquitto-pvc (auth passwd file). Deliberately NOT
+# frigate-media - large camera footage, not worth the storage cost.
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: offsite-backup
+  namespace: longhorn-system
+spec:
+  task: "backup"
+  cron: "0 2 * * *"
+  groups: ["offsite-backup"]
+  retain: 7
+  concurrency: 2
