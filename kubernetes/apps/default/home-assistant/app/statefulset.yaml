@@ -25,11 +25,6 @@ spec:
           env:
             - name: TZ
               value: Europe/Oslo
-            - name: GITHUB_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: home-assistant-github
-                  key: token
           securityContext:
             runAsUser: 0
           ports:
@@ -62,6 +57,9 @@ spec:
           volumeMounts:
             - name: home-assistant
               mountPath: /config
+            - name: github-credentials
+              mountPath: /var/run/secrets/github
+              readOnly: true
         - name: esphome
           image: ghcr.io/esphome/esphome
           imagePullPolicy: IfNotPresent
@@ -114,11 +112,6 @@ spec:
                 secretKeyRef:
                   name: ha-code-password
                   key: password
-            - name: GITHUB_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: home-assistant-github
-                  key: token
           securityContext:
             runAsUser: 0
           ports:
@@ -153,6 +146,9 @@ spec:
               mountPath: /config
             - name: esphome
               mountPath: /config/esphome
+            - name: github-credentials
+              mountPath: /var/run/secrets/github
+              readOnly: true
       volumes:
         - name: home-assistant
           persistentVolumeClaim:
@@ -160,3 +156,6 @@ spec:
         - name: esphome
           persistentVolumeClaim:
             claimName: esphome-pvc
+        - name: github-credentials
+          secret:
+            secretName: home-assistant-github
