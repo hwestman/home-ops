@@ -1,8 +1,0 @@
-apiVersion: v1alpha1
-kind: ResolverConfig
-nameservers:
-  #% for item in network.dns_servers %#
-  - address: #{ item }#
-  #% endfor %#
-searchDomains:
-  disableDefault: true
