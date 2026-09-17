@@ -45,6 +45,7 @@ spec:
       spec:
         retentionPeriod: "14d"
         storage:
+          storageClassName: longhorn
           resources:
             requests:
               storage: 10Gi
@@ -149,6 +150,7 @@ spec:
       spec:
         retentionPeriod: "7d"
         storage:
+          storageClassName: longhorn
           resources:
             requests:
               storage: 10Gi
