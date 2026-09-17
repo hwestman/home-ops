@@ -34,3 +34,15 @@ nodes:
       encryptDisk: false
       kernelModules: []
       longhornDisk: "/dev/disk/by-id/wwn-0x50026b775115a8aa"
+  - host: "w11-3"
+    ip: "192.168.1.77"
+    role: control-plane
+    schematicId: "36cd6536eaec8ba802be2d38974108359069cedba8857302f69792b26b87c010"
+    data:
+      installDisk: "/dev/disk/by-id/wwn-0x500a0751092d1f98"
+      installDiskSerial: ""
+      macAddr: "4c:cc:6a:65:1b:28"
+      mtu: 1500
+      encryptDisk: false
+      kernelModules: []
+      longhornDisk: "/dev/disk/by-id/wwn-0x5001b448b1db26f2"
