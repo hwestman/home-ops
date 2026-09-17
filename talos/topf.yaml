@@ -22,3 +22,15 @@ nodes:
       encryptDisk: false
       kernelModules: [nvidia, nvidia_uvm, nvidia_drm, nvidia_modeset]
       longhornDisk: "/dev/disk/by-id/wwn-0x5001b448b6a20cc9"
+  - host: "w11-2"
+    ip: "192.168.1.76"
+    role: control-plane
+    schematicId: "36cd6536eaec8ba802be2d38974108359069cedba8857302f69792b26b87c010"
+    data:
+      installDisk: "/dev/disk/by-id/ata-CT240BX500SSD1_2006E3EA705E"
+      installDiskSerial: ""
+      macAddr: "c8:60:00:0a:8b:f7"
+      mtu: 1500
+      encryptDisk: false
+      kernelModules: []
+      longhornDisk: ""
