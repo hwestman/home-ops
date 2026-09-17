@@ -33,4 +33,4 @@ nodes:
       mtu: 1500
       encryptDisk: false
       kernelModules: []
-      longhornDisk: ""
+      longhornDisk: "/dev/disk/by-id/wwn-0x50026b775115a8aa"
