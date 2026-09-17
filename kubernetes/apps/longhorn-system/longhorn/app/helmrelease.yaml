@@ -19,6 +19,13 @@ spec:
       # (see talos/all/72-longhorn-disk.yaml.tpl) — keeps Longhorn data off
       # the OS disk.
       defaultDataPath: /var/mnt/longhorn
+      # w11-1 held every replica from the single-node era; best-effort
+      # spreads replicas toward nodes with more free disk space rather than
+      # leaving them pinned to wherever they were first created.
+      # frigate-media is excluded (Volume-level nodeSelector pins it to
+      # w11-1's "gpu-node" tag — see frigate/app/pvc.yaml), so it never
+      # migrates away from the node its GPU-bound pod is stuck on.
+      replicaAutoBalance: best-effort
     # Cloudflare R2 (S3-compatible), offsite backup target - the old
     # cluster's NAS backup target is down/possibly dead, so this remains
     # the real safety net even now that in-cluster replicas exist. Region is a

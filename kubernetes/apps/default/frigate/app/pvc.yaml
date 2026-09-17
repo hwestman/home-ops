@@ -1,4 +1,13 @@
 ---
+# frigate-media's Longhorn Volume is pinned to node w11-1 (tag "gpu-node")
+# so its single replica never migrates away from the node the frigate pod
+# is itself pinned to (nvidia.com/gpu.present, see deployment.yaml) - this
+# is set directly on the live Volume (spec.nodeSelector), not expressible
+# via the PVC/StorageClass, so redo it if this PVC is ever recreated:
+#   kubectl -n longhorn-system patch nodes.longhorn.io w11-1 --type merge \
+#     -p '{"spec":{"tags":["gpu-node"]}}'
+#   kubectl -n longhorn-system patch volumes.longhorn.io <vol-name> \
+#     --type merge -p '{"spec":{"nodeSelector":["gpu-node"]}}'
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
