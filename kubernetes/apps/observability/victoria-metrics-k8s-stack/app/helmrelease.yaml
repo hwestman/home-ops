@@ -89,6 +89,13 @@ spec:
           enabled: false
         kube-apiserver-slos:
           enabled: false
+        # Same MetricsQL quirk as count:up0 above: rate() over these
+        # scheduler histogram buckets returns no series (not zero) when
+        # there's been no scheduling activity in the lookback window,
+        # which is most of the time on a quiet single-node home cluster.
+        # kube-scheduler itself is scraped fine (up == 1).
+        kube-scheduler.rules:
+          enabled: false
     kubeEtcd:
       # Talos runs etcd as a native host process, not a labeled Kubernetes
       # pod, so the chart's default component=etcd pod-selector service
