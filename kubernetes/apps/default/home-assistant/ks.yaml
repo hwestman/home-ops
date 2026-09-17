@@ -8,7 +8,7 @@ spec:
     - name: mariadb
   healthChecks:
     - apiVersion: apps/v1
-      kind: StatefulSet
+      kind: Deployment
       name: home-assistant
       namespace: default
   interval: 1h
