@@ -46,6 +46,12 @@ reset:
 reset-node node:
     topf reset --nodes-filter "^{{ node }}$" --confirm=false
 
+[doc('Gracefully shut down a node (cordon/drain, stop etcd cleanly, power off) before physical work')]
+[group('talos')]
+shutdown-node node:
+    talosctl shutdown --wait --talosconfig talosconfig \
+        -n "$(yq '.nodes[] | select(.host == "{{ node }}") | .ip' topf.yaml)"
+
 # topf intentionally does not manage Kubernetes upgrades
 [doc('Upgrade Kubernetes')]
 [group('talos')]
