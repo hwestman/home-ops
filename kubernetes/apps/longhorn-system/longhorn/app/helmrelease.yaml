@@ -20,9 +20,8 @@ spec:
       # the OS disk.
       defaultDataPath: /var/mnt/longhorn
     # Cloudflare R2 (S3-compatible), offsite backup target - the old
-    # cluster's NAS backup target is down/possibly dead, and this
-    # single-node cluster has zero replica redundancy today, so this is
-    # the only real safety net until w11-2/w11-3 join. Region is a
+    # cluster's NAS backup target is down/possibly dead, so this remains
+    # the real safety net even now that in-cluster replicas exist. Region is a
     # required but meaningless placeholder for R2 - "auto" is Cloudflare's
     # own convention. Only specific volumes back up here (see
     # recurringjob-backup.yaml), not everything - large, re-derivable data
@@ -39,7 +38,8 @@ spec:
       # local-path-provisioner stays the cluster default (non-critical data);
       # apps needing real persistence opt in via storageClassName: longhorn.
       defaultClass: false
-      # Single node today — no redundancy possible at replica count 3 yet.
-      # Bump to 3 once w11-2/w11-3 join (see home-cluster-migration-plan);
-      # Longhorn adds replicas to existing volumes live, no data migration.
-      defaultClassReplicaCount: 1
+      # w11-1/w11-2/w11-3 all now have a dedicated Longhorn disk, so new
+      # volumes get 2-way redundancy by default. Existing volumes were
+      # bumped from 1 -> 2 directly (spec.numberOfReplicas), live, no data
+      # migration - this setting only governs volumes created from here on.
+      defaultClassReplicaCount: 2
