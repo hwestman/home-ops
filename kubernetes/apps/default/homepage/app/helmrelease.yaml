@@ -21,6 +21,16 @@ spec:
               tag: v2.3.0
             env:
               HOMEPAGE_ALLOWED_HOSTS: "${SECRET_DOMAIN},homepage.${SECRET_DOMAIN}"
+              HOMEPAGE_VAR_UNIFI_USERNAME:
+                valueFrom:
+                  secretKeyRef:
+                    name: homepage-secret
+                    key: UNIFI_USERNAME
+              HOMEPAGE_VAR_UNIFI_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: homepage-secret
+                    key: UNIFI_PASSWORD
             probes:
               liveness: &probes
                 enabled: true
