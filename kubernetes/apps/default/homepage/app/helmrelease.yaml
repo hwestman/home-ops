@@ -103,6 +103,9 @@ spec:
         data:
           settings.yaml: |
             title: Homelab
+            providers:
+              longhorn:
+                url: http://longhorn-frontend.longhorn-system.svc.cluster.local
           bookmarks.yaml: |
             - Links:
                 - GitHub:
@@ -139,6 +142,11 @@ spec:
                   cpu: true
                   memory: true
                   showLabel: true
+            - longhorn:
+                expanded: true
+                total: true
+                labels: true
+                nodes: true
             - search:
                 provider: duckduckgo
                 target: _blank
