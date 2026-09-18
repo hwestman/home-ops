@@ -1,0 +1,20 @@
+---
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMStaticScrape
+metadata:
+  name: pi-hosts
+spec:
+  jobName: pi-hosts
+  targetEndpoints:
+    - targets:
+        - "192.168.1.56:9100"
+        - "192.168.1.157:9100"
+      relabelConfigs:
+        - sourceLabels: [__address__]
+          regex: "192.168.1.56:9100"
+          targetLabel: instance
+          replacement: zigbee2mqtt-pi
+        - sourceLabels: [__address__]
+          regex: "192.168.1.157:9100"
+          targetLabel: instance
+          replacement: zwavejs-pi

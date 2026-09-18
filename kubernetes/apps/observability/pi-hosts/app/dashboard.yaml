@@ -1,0 +1,144 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pi-hosts-dashboard
+  labels:
+    grafana_dashboard: "1"
+data:
+  pi-hosts.json: |
+    {
+      "title": "Pi Hosts (Zigbee2MQTT / Z-Wave JS UI)",
+      "uid": "pi-hosts",
+      "timezone": "browser",
+      "schemaVersion": 39,
+      "time": { "from": "now-6h", "to": "now" },
+      "refresh": "30s",
+      "panels": [
+        {
+          "id": 1,
+          "title": "Host Up",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 16, "x": 0, "y": 0 },
+          "datasource": { "type": "prometheus", "uid": "VictoriaMetrics" },
+          "targets": [
+            { "expr": "up{job=\"pi-hosts\", instance=\"zigbee2mqtt-pi\"}", "legendFormat": "Zigbee2MQTT Pi", "refId": "A" },
+            { "expr": "up{job=\"pi-hosts\", instance=\"zwavejs-pi\"}", "legendFormat": "Z-Wave JS UI Pi", "refId": "B" }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [
+                {
+                  "type": "value",
+                  "options": {
+                    "1": { "text": "Up", "color": "green" },
+                    "0": { "text": "Down", "color": "red" }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": 8,
+          "title": "Z-Wave JS UI Reachable",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 8, "x": 16, "y": 0 },
+          "datasource": { "type": "prometheus", "uid": "VictoriaMetrics" },
+          "targets": [
+            { "expr": "probe_success{job=\"zwavejs-pi-http\"}", "refId": "A" }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [
+                {
+                  "type": "value",
+                  "options": {
+                    "1": { "text": "Reachable", "color": "green" },
+                    "0": { "text": "Unreachable", "color": "red" }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": 2,
+          "title": "CPU Usage",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+          "datasource": { "type": "prometheus", "uid": "VictoriaMetrics" },
+          "targets": [
+            {
+              "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{job=\"pi-hosts\", mode=\"idle\"}[5m])) * 100)",
+              "legendFormat": "{{instance}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "max": 100 } }
+        },
+        {
+          "id": 3,
+          "title": "Memory Usage",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+          "datasource": { "type": "prometheus", "uid": "VictoriaMetrics" },
+          "targets": [
+            {
+              "expr": "100 * (1 - (node_memory_MemAvailable_bytes{job=\"pi-hosts\"} / node_memory_MemTotal_bytes{job=\"pi-hosts\"}))",
+              "legendFormat": "{{instance}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "max": 100 } }
+        },
+        {
+          "id": 4,
+          "title": "Root Disk Usage",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+          "datasource": { "type": "prometheus", "uid": "VictoriaMetrics" },
+          "targets": [
+            {
+              "expr": "100 - (node_filesystem_avail_bytes{job=\"pi-hosts\", mountpoint=\"/\"} / node_filesystem_size_bytes{job=\"pi-hosts\", mountpoint=\"/\"} * 100)",
+              "legendFormat": "{{instance}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "max": 100 } }
+        },
+        {
+          "id": 5,
+          "title": "Load Average (5m)",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
+          "datasource": { "type": "prometheus", "uid": "VictoriaMetrics" },
+          "targets": [
+            { "expr": "node_load5{job=\"pi-hosts\"}", "legendFormat": "{{instance}}", "refId": "A" }
+          ],
+          "fieldConfig": { "defaults": { "unit": "short", "min": 0 } }
+        },
+        {
+          "id": 6,
+          "title": "Temperature",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 },
+          "datasource": { "type": "prometheus", "uid": "VictoriaMetrics" },
+          "targets": [
+            { "expr": "node_hwmon_temp_celsius{job=\"pi-hosts\"}", "legendFormat": "{{instance}} {{sensor}}", "refId": "A" }
+          ],
+          "fieldConfig": { "defaults": { "unit": "celsius" } }
+        },
+        {
+          "id": 7,
+          "title": "Uptime",
+          "type": "stat",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 20 },
+          "datasource": { "type": "prometheus", "uid": "VictoriaMetrics" },
+          "targets": [
+            { "expr": "time() - node_boot_time_seconds{job=\"pi-hosts\"}", "legendFormat": "{{instance}}", "refId": "A" }
+          ],
+          "fieldConfig": { "defaults": { "unit": "s" } }
+        }
+      ]
+    }

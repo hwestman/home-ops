@@ -1,0 +1,20 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: mqtt-exporter
+spec:
+  healthChecks:
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: mqtt-exporter-zigbee
+      namespace: observability
+  interval: 1h
+  path: ./kubernetes/apps/observability/mqtt-exporter/app
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: observability
+  wait: false

@@ -1,0 +1,46 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mqtt-exporter-zigbee-config
+data:
+  config.yaml: |
+    mqtt:
+      server: tcp://mosquitto.default.svc.cluster.local:1883
+      # Single subscription covers zigbee2mqtt/<device>, .../<device>/availability
+      # and zigbee2mqtt/bridge/state - device_id_regex below picks the right
+      # label out of all three shapes. Noisier bridge/* topics (health,
+      # devices, groups, ...) don't carry any of the fields listed under
+      # `metrics`, so they're received but never turned into a series.
+      topic_path: zigbee2mqtt/#
+      device_id_regex: "^zigbee2mqtt/(?P<deviceid>[^/]+)"
+      qos: 0
+    cache:
+      timeout: 24h
+    json_parsing:
+      separator: .
+    metrics:
+      - prom_name: zigbee_linkquality
+        mqtt_name: linkquality
+        help: Zigbee device link quality (0-255)
+        type: gauge
+      - prom_name: zigbee_battery_percent
+        mqtt_name: battery
+        help: Zigbee device battery percentage
+        type: gauge
+      # Same field name is used by three different topics - the exporter's
+      # auto-added `topic` label is what tells them apart when querying:
+      #   topic="zigbee2mqtt/bridge/state"        -> bridge online/offline
+      #   topic=~".../availability"                -> device network availability
+      #   topic="zigbee2mqtt/<device>" (no suffix) -> device's own ON/OFF power state
+      - prom_name: zigbee_state
+        mqtt_name: state
+        help: "Bridge/device state - see the topic label for what this instance means"
+        type: gauge
+        error_value: -1
+        string_value_mapping:
+          map:
+            online: 1
+            offline: 0
+            "ON": 1
+            "OFF": 0

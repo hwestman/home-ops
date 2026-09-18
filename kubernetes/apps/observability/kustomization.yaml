@@ -9,7 +9,10 @@ components:
 resources:
   - ./namespace.yaml
   - ./alertmanager-ntfy/ks.yaml
+  - ./blackbox-exporter/ks.yaml
+  - ./mqtt-exporter/ks.yaml
   - ./ntfy/ks.yaml
+  - ./pi-hosts/ks.yaml
   - ./snmp-exporter/ks.yaml
   - ./unifi-poller/ks.yaml
   - ./victoria-metrics-k8s-stack/ks.yaml

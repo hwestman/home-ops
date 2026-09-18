@@ -1,0 +1,53 @@
+---
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMRule
+metadata:
+  name: pi-hosts
+spec:
+  groups:
+    - name: pi-hosts.rules
+      rules:
+        - alert: PiHostDown
+          expr: up{job="pi-hosts"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "{{ $labels.instance }} is unreachable."
+            description: "node_exporter on {{ $labels.instance }} has not been scraped successfully for 5 minutes."
+        - alert: PiHostDiskAlmostFull
+          expr: 100 - (node_filesystem_avail_bytes{job="pi-hosts", mountpoint="/"} / node_filesystem_size_bytes{job="pi-hosts", mountpoint="/"} * 100) > 85
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $labels.instance }} root filesystem is over 85% full."
+            description: 'Root filesystem on {{ $labels.instance }} is {{ printf "%.1f" $value }}% full.'
+        - alert: PiHostDiskCritical
+          expr: 100 - (node_filesystem_avail_bytes{job="pi-hosts", mountpoint="/"} / node_filesystem_size_bytes{job="pi-hosts", mountpoint="/"} * 100) > 95
+          for: 10m
+          labels:
+            severity: critical
+          annotations:
+            summary: "{{ $labels.instance }} root filesystem is over 95% full."
+            description: 'Root filesystem on {{ $labels.instance }} is {{ printf "%.1f" $value }}% full.'
+        - alert: PiHostHighLoad
+          expr: (node_load5{job="pi-hosts"} / count without (cpu, mode) (node_cpu_seconds_total{job="pi-hosts", mode="idle"})) > 1
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $labels.instance }} has high load."
+            description: '5m load average on {{ $labels.instance }} is {{ printf "%.2f" $value }}x the core count.'
+        # node_exporter's hwmon collector is expected to surface the Pi's SoC
+        # thermal zone here. Confirm the exact metric/label names once real
+        # scrapes land (`curl <pi>:9100/metrics | grep -i temp`) and adjust
+        # this expression if it doesn't match.
+        - alert: PiHostHighTemp
+          expr: node_hwmon_temp_celsius{job="pi-hosts"} > 75
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $labels.instance }} is running hot."
+            description: '{{ $labels.instance }} temperature is {{ printf "%.1f" $value }}°C.'

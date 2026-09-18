@@ -1,0 +1,123 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: zigbee-dashboard
+  labels:
+    grafana_dashboard: "1"
+data:
+  zigbee.json: |
+    {
+      "title": "Zigbee2MQTT",
+      "uid": "zigbee2mqtt",
+      "timezone": "browser",
+      "schemaVersion": 39,
+      "time": { "from": "now-6h", "to": "now" },
+      "refresh": "30s",
+      "panels": [
+        {
+          "id": 1,
+          "title": "Bridge State",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 8, "x": 0, "y": 0 },
+          "datasource": { "type": "prometheus", "uid": "VictoriaMetrics" },
+          "targets": [
+            { "expr": "zigbee_state{topic=\"zigbee2mqtt/bridge/state\"}", "refId": "A" }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [
+                {
+                  "type": "value",
+                  "options": {
+                    "1": { "text": "Online", "color": "green" },
+                    "0": { "text": "Offline", "color": "red" }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": 2,
+          "title": "Devices Offline",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 8, "x": 8, "y": 0 },
+          "datasource": { "type": "prometheus", "uid": "VictoriaMetrics" },
+          "targets": [
+            { "expr": "count(zigbee_state{topic=~\"zigbee2mqtt/[^/]+/availability\"} == 0) or vector(0)", "refId": "A" }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "red", "value": 1 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": 3,
+          "title": "Devices Tracked",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 8, "x": 16, "y": 0 },
+          "datasource": { "type": "prometheus", "uid": "VictoriaMetrics" },
+          "targets": [
+            { "expr": "count(zigbee_state{topic=~\"zigbee2mqtt/[^/]+/availability\"}) or vector(0)", "refId": "A" }
+          ]
+        },
+        {
+          "id": 4,
+          "title": "Device Availability",
+          "type": "state-timeline",
+          "gridPos": { "h": 8, "w": 24, "x": 0, "y": 4 },
+          "datasource": { "type": "prometheus", "uid": "VictoriaMetrics" },
+          "targets": [
+            {
+              "expr": "zigbee_state{topic=~\"zigbee2mqtt/[^/]+/availability\"}",
+              "legendFormat": "{{sensor}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [
+                {
+                  "type": "value",
+                  "options": {
+                    "1": { "text": "Online", "color": "green" },
+                    "0": { "text": "Offline", "color": "red" }
+                  }
+                }
+              ]
+            }
+          },
+          "options": { "mergeValues": true }
+        },
+        {
+          "id": 5,
+          "title": "Link Quality",
+          "type": "timeseries",
+          "gridPos": { "h": 9, "w": 12, "x": 0, "y": 12 },
+          "datasource": { "type": "prometheus", "uid": "VictoriaMetrics" },
+          "targets": [
+            { "expr": "zigbee_linkquality", "legendFormat": "{{sensor}}", "refId": "A" }
+          ],
+          "fieldConfig": { "defaults": { "unit": "short", "min": 0, "max": 255 } }
+        },
+        {
+          "id": 6,
+          "title": "Battery",
+          "type": "timeseries",
+          "gridPos": { "h": 9, "w": 12, "x": 12, "y": 12 },
+          "datasource": { "type": "prometheus", "uid": "VictoriaMetrics" },
+          "targets": [
+            { "expr": "zigbee_battery_percent", "legendFormat": "{{sensor}}", "refId": "A" }
+          ],
+          "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "max": 100 } }
+        }
+      ]
+    }

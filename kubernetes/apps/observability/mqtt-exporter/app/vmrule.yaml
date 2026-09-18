@@ -1,0 +1,33 @@
+---
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMRule
+metadata:
+  name: mqtt-exporter-zigbee
+spec:
+  groups:
+    - name: zigbee.rules
+      rules:
+        - alert: ZigbeeBridgeOffline
+          expr: zigbee_state{topic="zigbee2mqtt/bridge/state"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Zigbee2MQTT bridge is offline."
+            description: "The zigbee2mqtt/bridge/state topic has reported offline for 5 minutes - the Zigbee coordinator may be down or disconnected."
+        - alert: ZigbeeDeviceOffline
+          expr: zigbee_state{topic=~"zigbee2mqtt/[^/]+/availability"} == 0
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Zigbee device {{ $labels.sensor }} is offline."
+            description: "{{ $labels.sensor }} has been unavailable for 15 minutes."
+        - alert: ZigbeeDeviceLowBattery
+          expr: zigbee_battery_percent < 15
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: "Zigbee device {{ $labels.sensor }} battery is low."
+            description: '{{ $labels.sensor }} battery is at {{ printf "%.0f" $value }}%.'

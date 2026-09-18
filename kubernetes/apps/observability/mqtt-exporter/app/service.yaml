@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mqtt-exporter-zigbee
+  labels:
+    app: mqtt-exporter-zigbee
+spec:
+  ports:
+    - name: metrics
+      port: 9641
+      targetPort: 9641
+      protocol: TCP
+  selector:
+    app: mqtt-exporter-zigbee

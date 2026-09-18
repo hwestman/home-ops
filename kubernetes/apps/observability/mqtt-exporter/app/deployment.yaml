@@ -1,0 +1,58 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mqtt-exporter-zigbee
+  annotations:
+    reloader.stakater.com/auto: "true"
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: mqtt-exporter-zigbee
+  template:
+    metadata:
+      labels:
+        app: mqtt-exporter-zigbee
+    spec:
+      containers:
+        - name: mqtt-exporter-zigbee
+          image: ghcr.io/hikhvar/mqtt2prometheus:v0.1.7
+          imagePullPolicy: IfNotPresent
+          args:
+            - -config=/config/config.yaml
+          envFrom:
+            - secretRef:
+                name: mqtt-exporter-zigbee-secret
+          ports:
+            - name: metrics
+              containerPort: 9641
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            initialDelaySeconds: 10
+            periodSeconds: 10
+      volumes:
+        - name: config
+          configMap:
+            name: mqtt-exporter-zigbee-config
