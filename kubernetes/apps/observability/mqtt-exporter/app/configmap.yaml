@@ -37,7 +37,9 @@ data:
         mqtt_name: state
         help: "Bridge/device state - see the topic label for what this instance means"
         type: gauge
-        error_value: -1
+        # v0.1.7 doesn't support error_value (added post-release); unmapped
+        # string values (cover states like OPEN/CLOSE, etc.) just fail to
+        # parse and are dropped for that message instead of erroring.
         string_value_mapping:
           map:
             online: 1
