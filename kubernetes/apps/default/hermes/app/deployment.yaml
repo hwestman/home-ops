@@ -68,16 +68,27 @@ spec:
             - containerPort: 9119
               name: dashboard
               protocol: TCP
+          # tcpSocket probes connect via the Pod IP, which can never reach
+          # a listener bound to 127.0.0.1 only (deliberate — see the
+          # --host 127.0.0.1 arg above) — that crash-looped this container
+          # on liveness failures. exec runs inside the container's own
+          # netns instead, so it can actually reach loopback.
           readinessProbe:
-            tcpSocket:
-              port: 9119
+            exec:
+              command:
+                - python3
+                - -c
+                - "import socket; socket.create_connection(('127.0.0.1', 9119), 2).close()"
             initialDelaySeconds: 10
             periodSeconds: 5
             timeoutSeconds: 3
             failureThreshold: 3
           livenessProbe:
-            tcpSocket:
-              port: 9119
+            exec:
+              command:
+                - python3
+                - -c
+                - "import socket; socket.create_connection(('127.0.0.1', 9119), 2).close()"
             initialDelaySeconds: 30
             periodSeconds: 15
             timeoutSeconds: 5
