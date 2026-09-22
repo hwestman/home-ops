@@ -11,10 +11,18 @@ metadata:
     app: unifi
 spec:
   type: LoadBalancer
-  # Default (Cluster) SNATs cross-node traffic, which would make every
-  # device appear to the controller as coming from one internal IP and
-  # break the client list / topology view. Preserve the real source IP.
-  externalTrafficPolicy: Local
+  # externalTrafficPolicy: Local (removed 2026-09-22) required the Cilium
+  # L2-announcement leader for 192.168.1.222 to always be the same node
+  # running the unifi pod, but leader election doesn't account for backend
+  # locality - about 2 times out of 3 it picked a node with no local pod,
+  # silently black-holing all inform traffic (APs/switches stuck
+  # "Unreachable" until the lease happened to land right). Default
+  # (Cluster) policy lets any node forward correctly regardless of which
+  # node holds the L2 lease. This only affects the source IP the
+  # controller sees on each device's own inform connection (cosmetic - the
+  # devices' IPs are already static/known); wireless client tracking data
+  # comes from each AP's self-reported station table in the inform
+  # payload, unaffected by NAT.
   ports:
     - name: inform
       port: 8080
