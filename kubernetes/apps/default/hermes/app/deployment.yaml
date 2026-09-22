@@ -15,12 +15,9 @@ spec:
       labels:
         app: hermes
     spec:
-      # Image is not published upstream (docker-compose.yml uses `build: .`)
-      # — build it yourself and push to a registry you control before this
-      # will pull, e.g. ghcr.io/hwestman/hermes-agent, same as hook-proxy.
       containers:
         - name: gateway
-          image: ghcr.io/hwestman/hermes-agent:latest # placeholder — build & push first
+          image: nousresearch/hermes-agent:v2026.9.21
           imagePullPolicy: IfNotPresent
           # Don't set `command:` — that overrides the image's ENTRYPOINT
           # (/init, s6-overlay's PID 1, which does the HERMES_UID/GID
@@ -53,7 +50,7 @@ spec:
             - name: data
               mountPath: /opt/data
         - name: dashboard
-          image: ghcr.io/hwestman/hermes-agent:latest # placeholder — same image, different args
+          image: nousresearch/hermes-agent:v2026.9.21
           imagePullPolicy: IfNotPresent
           args:
             - dashboard
