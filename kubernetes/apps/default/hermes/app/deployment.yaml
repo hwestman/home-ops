@@ -1,0 +1,101 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hermes
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: hermes
+  template:
+    metadata:
+      labels:
+        app: hermes
+    spec:
+      # Image is not published upstream (docker-compose.yml uses `build: .`)
+      # — build it yourself and push to a registry you control before this
+      # will pull, e.g. ghcr.io/hwestman/hermes-agent, same as hook-proxy.
+      containers:
+        - name: gateway
+          image: ghcr.io/hwestman/hermes-agent:latest # placeholder — build & push first
+          imagePullPolicy: IfNotPresent
+          # Don't set `command:` — that overrides the image's ENTRYPOINT
+          # (/init, s6-overlay's PID 1, which does the HERMES_UID/GID
+          # remap and starts the supervision tree). `args` alone mirrors
+          # docker-compose's `command: ["gateway", "run"]`, which only
+          # overrides CMD.
+          args:
+            - gateway
+            - run
+          env:
+            - name: TZ
+              value: Europe/Oslo
+            - name: HERMES_UID
+              value: "1000"
+            - name: HERMES_GID
+              value: "1000"
+            - name: OPENROUTER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: hermes-secrets
+                  key: OPENROUTER_API_KEY
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          volumeMounts:
+            - name: data
+              mountPath: /opt/data
+        - name: dashboard
+          image: ghcr.io/hwestman/hermes-agent:latest # placeholder — same image, different args
+          imagePullPolicy: IfNotPresent
+          args:
+            - dashboard
+            - --host
+            - 127.0.0.1
+            - --no-open
+          env:
+            - name: TZ
+              value: Europe/Oslo
+            - name: HERMES_UID
+              value: "1000"
+            - name: HERMES_GID
+              value: "1000"
+          ports:
+            - containerPort: 9119
+              name: dashboard
+              protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: 9119
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            tcpSocket:
+              port: 9119
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          volumeMounts:
+            - name: data
+              mountPath: /opt/data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: hermes-pvc

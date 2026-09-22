@@ -1,0 +1,17 @@
+---
+# ClusterIP only — no HTTPRoute yet. Dashboard binds to 127.0.0.1 inside the
+# container by design (it holds your API keys); reach it for now via:
+#   kubectl -n default port-forward svc/hermes-dashboard 9119:9119
+# Only add an HTTPRoute + Cloudflare Access gating once you've decided how
+# it should be authenticated, same as the ha-code pattern.
+apiVersion: v1
+kind: Service
+metadata:
+  name: hermes-dashboard
+spec:
+  selector:
+    app: hermes
+  ports:
+    - name: dashboard
+      port: 9119
+      targetPort: 9119

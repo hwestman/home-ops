@@ -11,6 +11,7 @@ resources:
   - ./airconnect/ks.yaml
   - ./echo/ks.yaml
   - ./frigate/ks.yaml
+  - ./hermes/ks.yaml
   - ./home-assistant/ks.yaml
   - ./home-assistant-hytta/ks.yaml
   - ./homepage/ks.yaml

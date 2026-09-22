@@ -1,0 +1,26 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: hermes
+spec:
+  dependsOn:
+    - name: home-assistant
+  healthChecks:
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: hermes
+      namespace: default
+  interval: 1h
+  path: ./kubernetes/apps/default/hermes/app
+  postBuild:
+    substituteFrom:
+      - name: cluster-secrets
+        kind: Secret
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: default
+  wait: false

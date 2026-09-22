@@ -17,6 +17,7 @@ __pycache__/
 *.py[cod]
 # Misc.
 .claude/
+/CLAUDE.local.md
 .private/
 .venv/
 .DS_Store
