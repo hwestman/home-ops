@@ -4,7 +4,7 @@ kind: Deployment
 metadata:
   name: hermes
 spec:
-  replicas: 1
+  replicas: 0 # scaled down — experiment paused, see git log for why
   strategy:
     type: Recreate
   selector:
