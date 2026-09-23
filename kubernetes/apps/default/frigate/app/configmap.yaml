@@ -100,10 +100,17 @@ data:
         ffmpeg:
           inputs:
             # Only the substream is pulled - the main (H.265) stream isn't
-            # needed since recording is off entirely for this camera.
+            # needed since recording is off entirely for this camera. It
+            # also carries an AAC audio track (verified via go2rtc), reused
+            # here for audio event detection - no separate audio stream.
             - path: rtsp://admin:{FRIGATE_WASHROOM_PASSWORD}@192.168.2.118:554/cam/realmonitor?channel=1&subtype=1
               roles:
                 - detect
+                - audio
+        audio:
+          enabled: true
+          listen:
+            - bark
         detect:
           width: 640
           height: 480
