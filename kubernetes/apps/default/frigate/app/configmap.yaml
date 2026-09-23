@@ -6,7 +6,11 @@ metadata:
 data:
   config.yml: |
     mqtt:
-      enabled: false
+      enabled: true
+      host: mosquitto.default.svc.cluster.local
+      port: 1883
+      user: frigate
+      password: "{FRIGATE_MQTT_PASSWORD}"
 
     detectors:
       onnx:
