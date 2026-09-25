@@ -114,7 +114,25 @@ data:
         detect:
           width: 640
           height: 480
-        # Recording fully disabled - bathroom camera, live view + motion
-        # alerts only, nothing saved to disk.
+        # Recording enabled (was off entirely) - this is the laundry/dog
+        # room, not a bathroom. Scoped to bark only: audio labels are
+        # always classified as "detections" (never "alerts", since zones
+        # don't apply to audio), so review.alerts.labels is emptied out
+        # here to stop any visual object (person doing laundry, the dog
+        # itself, etc.) from ever being reviewed/retained in this room,
+        # and review.detections.labels is narrowed to just "bark" so nothing
+        # else creates a review item either. A label matching neither list
+        # gets no review item at all, so it just falls off the ~60s rolling
+        # buffer (expire_interval) unretained.
+        review:
+          alerts:
+            labels: []
+          detections:
+            labels:
+              - bark
         record:
-          enabled: false
+          enabled: true
+          detections:
+            retain:
+              days: 14
+              mode: motion
