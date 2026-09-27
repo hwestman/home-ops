@@ -79,6 +79,8 @@ spec:
               name: frigate-media
             - mountPath: /config
               name: frigate-config
+            - mountPath: /dev/shm
+              name: frigate-shm
       volumes:
         - name: frigate-configmap
           configMap:
@@ -92,3 +94,7 @@ spec:
         - name: frigate-config
           persistentVolumeClaim:
             claimName: frigate-config
+        - name: frigate-shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 256Mi
