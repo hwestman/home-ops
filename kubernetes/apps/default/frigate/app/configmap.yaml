@@ -107,6 +107,7 @@ data:
               roles:
                 - detect
                 - audio
+                - record
         audio:
           enabled: true
           listen:
