@@ -99,10 +99,10 @@ data:
       washroom:
         ffmpeg:
           inputs:
-            # Only the substream is pulled - the main (H.265) stream isn't
-            # needed since recording is off entirely for this camera. It
-            # also carries an AAC audio track (verified via go2rtc), reused
-            # here for audio event detection - no separate audio stream.
+            # Only the substream is pulled - it's what recording, detect, and
+            # audio all use here. Carries an AAC audio track (verified via
+            # go2rtc), reused for audio event detection - no separate audio
+            # stream needed.
             - path: rtsp://admin:{FRIGATE_WASHROOM_PASSWORD}@192.168.2.118:554/cam/realmonitor?channel=1&subtype=1
               roles:
                 - detect
@@ -116,21 +116,24 @@ data:
           width: 640
           height: 480
         # Recording enabled (was off entirely) - this is the laundry/dog
-        # room, not a bathroom. Scoped to bark only: audio labels are
-        # always classified as "detections" (never "alerts", since zones
-        # don't apply to audio), so review.alerts.labels is emptied out
-        # here to stop any visual object (person doing laundry, the dog
-        # itself, etc.) from ever being reviewed/retained in this room,
-        # and review.detections.labels is narrowed to just "bark" so nothing
-        # else creates a review item either. A label matching neither list
-        # gets no review item at all, so it just falls off the ~60s rolling
-        # buffer (expire_interval) unretained.
+        # room, not a bathroom. Scoped to bark (+ person, for testing the
+        # bark notification without an actual bark - see activity_washroom_bark
+        # automation) so nothing else creates a review item: review.alerts.labels
+        # is emptied out to stop any other visual object (the dog itself, etc.)
+        # from ever being reviewed/retained in this room. A label matching
+        # neither list gets no review item at all, so it just falls off the
+        # ~60s rolling buffer (expire_interval) unretained.
+        #
+        # Tradeoff accepted 2026-09-29: this does mean a 14-day clip gets
+        # retained any time a person is just in the room, not only when the
+        # dog barks.
         review:
           alerts:
             labels: []
           detections:
             labels:
               - bark
+              - person
         record:
           enabled: true
           detections:
