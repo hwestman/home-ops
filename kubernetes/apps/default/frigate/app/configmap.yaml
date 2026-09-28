@@ -96,6 +96,14 @@ data:
           height: 1080
         # No continuous recording - motion-only (inherits the global
         # record.motion block above).
+        # record.enabled starts false (was true, inherited from global) -
+        # this camera should only ever record while everyone's away, toggled
+        # at runtime via switch.garage_recordings by the "Frigate-opptak kun
+        # når borte" HA automation. Starting false rather than true means a
+        # broken/offline automation fails closed (no recording) instead of
+        # fails open (recording while people are home).
+        record:
+          enabled: false
       washroom:
         ffmpeg:
           inputs:
@@ -116,17 +124,12 @@ data:
           width: 640
           height: 480
         # Recording enabled (was off entirely) - this is the laundry/dog
-        # room, not a bathroom. Scoped to bark (+ person, for testing the
-        # bark notification without an actual bark - see activity_washroom_bark
-        # automation) so nothing else creates a review item: review.alerts.labels
-        # is emptied out to stop any other visual object (the dog itself, etc.)
-        # from ever being reviewed/retained in this room. A label matching
-        # neither list gets no review item at all, so it just falls off the
-        # ~60s rolling buffer (expire_interval) unretained.
-        #
-        # Tradeoff accepted 2026-09-29: this does mean a 14-day clip gets
-        # retained any time a person is just in the room, not only when the
-        # dog barks.
+        # room, not a bathroom. Scoped to bark + person so nothing else
+        # creates a review item: review.alerts.labels is emptied out to stop
+        # any other visual object (the dog itself, etc.) from ever being
+        # reviewed/retained in this room. A label matching neither list gets
+        # no review item at all, so it just falls off the ~60s rolling
+        # buffer (expire_interval) unretained.
         review:
           alerts:
             labels: []
@@ -134,8 +137,14 @@ data:
             labels:
               - bark
               - person
+        # enabled starts false, same fail-closed reasoning and same
+        # controlling automation as garage's record block above - this
+        # camera only records while everyone's away (via
+        # switch.washroom_recordings), which is also what makes retaining
+        # plain "person" clips here acceptable: it only ever fires when
+        # someone unexpected is in the room, not during normal laundry days.
         record:
-          enabled: true
+          enabled: false
           detections:
             retain:
               days: 14
