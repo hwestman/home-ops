@@ -4,7 +4,7 @@ kind: Deployment
 metadata:
   name: hermes
 spec:
-  replicas: 0 # scaled down — experiment paused, see git log for why
+  replicas: 1
   strategy:
     type: Recreate
   selector:
@@ -39,6 +39,16 @@ spec:
                 secretKeyRef:
                   name: hermes-secrets
                   key: OPENROUTER_API_KEY
+            - name: HASS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hermes-secrets
+                  key: HASS_TOKEN
+            - name: HASS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: hermes-secrets
+                  key: HASS_URL
           resources:
             requests:
               cpu: 250m
