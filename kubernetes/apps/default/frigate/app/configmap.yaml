@@ -96,14 +96,19 @@ data:
           height: 1080
         # No continuous recording - motion-only (inherits the global
         # record.motion block above).
-        # record.enabled starts false (was true, inherited from global) -
-        # this camera should only ever record while everyone's away, toggled
-        # at runtime via switch.garage_recordings by the "Frigate-opptak kun
-        # når borte" HA automation. Starting false rather than true means a
-        # broken/offline automation fails closed (no recording) instead of
-        # fails open (recording while people are home).
-        record:
-          enabled: false
+        # record.enabled must start true (inherited from global) - Frigate's
+        # MQTT recordings/set command hard-refuses to turn recording ON if
+        # it started disabled in config (frigate.comms.dispatcher checks
+        # record.enabled_in_config, which is a one-time snapshot of this
+        # value taken at startup; only OFF has no such guard). So the
+        # "Frigate-opptak kun når borte" HA automation, which toggles
+        # switch.garage_recordings based on people_home, can only ever turn
+        # recording off, never on, unless it starts on here. Confirmed
+        # 2026-09-29 after a full day of starting false silently failing to
+        # ever record - zero clips despite the automation running and
+        # switch.turn_on reporting success (HA-side) every time. This does mean
+        # a broken/offline automation fails open (records while people are
+        # home) rather than closed - that's forced by Frigate, not a choice.
       washroom:
         ffmpeg:
           inputs:
@@ -137,14 +142,16 @@ data:
             labels:
               - bark
               - person
-        # enabled starts false, same fail-closed reasoning and same
-        # controlling automation as garage's record block above - this
-        # camera only records while everyone's away (via
-        # switch.washroom_recordings), which is also what makes retaining
-        # plain "person" clips here acceptable: it only ever fires when
-        # someone unexpected is in the room, not during normal laundry days.
+        # enabled must start true - see garage's comment above for why (the
+        # MQTT recordings/set command can only ever turn this off, never on,
+        # if it starts false). This does weaken the "person" retention
+        # tradeoff noted above: recording is on by default now, not only
+        # while away, so a broken/offline "Frigate-opptak kun når borte"
+        # automation means plain presence in the room gets recorded even
+        # when people are home, not just when unexpected. Accepted as the
+        # lesser problem vs. the feature not working at all (2026-09-29).
         record:
-          enabled: false
+          enabled: true
           detections:
             retain:
               days: 14
