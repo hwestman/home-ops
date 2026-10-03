@@ -20,7 +20,7 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: airconnect
-          image: 1activegeek/airconnect:1.0.8
+          image: 1activegeek/airconnect:1.12.3
           imagePullPolicy: IfNotPresent
           env:
             - name: TZ
