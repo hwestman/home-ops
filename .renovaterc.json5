@@ -41,6 +41,22 @@
       minimumGroupSize: 2,
     },
     {
+      description: "Automerge patches and digests once checks pass",
+      matchUpdateTypes: ["patch", "digest"],
+      automerge: true,
+    },
+    {
+      description: "mariadb minor/major changes the pinned tag's version line (e.g. 12.3->12.4 or ->13.x) and needs manual LTS/scratch-test review - never automerge those. Digest-only rebuilds of the same pinned tag don't trigger mariadb-upgrade's version-jump logic and stay automergeable via the rule above.",
+      matchPackageNames: ["mariadb"],
+      matchUpdateTypes: ["minor", "major"],
+      automerge: false,
+    },
+    {
+      description: "Talos: merging only bumps the pinned version in git - the live nodes don't change until `just talos upgrade` is run manually. Automerging would let the pinned version drift ahead of what's actually running.",
+      matchPackageNames: ["siderolabs/talos"],
+      automerge: false,
+    },
+    {
       matchUpdateTypes: ["major"],
       addLabels: ["type/major"],
     },

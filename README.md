@@ -33,6 +33,22 @@ etcd/unmounts disks cleanly. Below 3 control-plane nodes this drops etcd
 quorum until it's back (`kubectl`/Flux down, apps keep running). Run `just`
 from inside the repo (mise version pins are directory-scoped).
 
+## Upgrading
+
+Renovate queues one PR per dependency (see the dashboard issue). Core infra
+(Cilium, cert-manager, Envoy Gateway, flux-operator, CoreDNS) is safe to
+merge on green CI — Flux applies their CRD changes automatically. Two
+exceptions:
+
+- **Talos**: merging only bumps `topf.yaml`; it doesn't touch the nodes.
+  Run `just talos upgrade` (or `upgrade-node <name>` for one). `topf`
+  sequences nodes safely on its own and already passes
+  `--delete-if-eviction-fails`, required because Longhorn's
+  `instance-manager` pod can never be gracefully evicted.
+
+Core service replica counts (cilium-operator, cert-manager, coredns, echo,
+envoy) should stay at 2+ so a node reboot never takes one fully down.
+
 ## Credit
 
 Built from [`onedr0p/cluster-template`](https://github.com/onedr0p/cluster-template).

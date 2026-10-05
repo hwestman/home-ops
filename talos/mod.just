@@ -59,12 +59,18 @@ upgrade-k8s:
     talosctl --nodes "$(yq '[.nodes[] | select(.role == "control-plane")][0].ip' topf.yaml)" \
         upgrade-k8s --to "$(yq '.kubernetesVersion' topf.yaml)"
 
+# --delete-if-eviction-fails: Longhorn's instance-manager pod has a
+# permanent PDB (disruptionsAllowed: 0 on every node, by design, regardless
+# of volume health) that graceful eviction can never satisfy. Without this
+# flag, upgrade stalls on the drain timeout and errors out. Safe here
+# specifically because the node reboots moments later anyway.
+
 [doc('Upgrade Talos on all nodes, one at a time (asks first)')]
 [group('talos')]
 upgrade:
-    topf upgrade
+    topf upgrade --delete-if-eviction-fails
 
 [doc('Upgrade Talos on a single node (asks first)')]
 [group('talos')]
 upgrade-node node:
-    topf upgrade --nodes-filter "^{{ node }}$"
+    topf upgrade --nodes-filter "^{{ node }}$" --delete-if-eviction-fails
