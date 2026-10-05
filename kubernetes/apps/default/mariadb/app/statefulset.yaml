@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: mariadb
-          image: mariadb:11.8
+          image: mariadb:12.3
           imagePullPolicy: IfNotPresent
           args:
             - --character-set-server=utf8mb4
