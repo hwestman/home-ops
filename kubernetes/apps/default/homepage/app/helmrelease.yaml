@@ -18,7 +18,7 @@ spec:
           app:
             image:
               repository: ghcr.io/gethomepage/homepage
-              tag: v2.3.0
+              tag: v2.4.0
             env:
               HOMEPAGE_ALLOWED_HOSTS: "${SECRET_DOMAIN},homepage.${SECRET_DOMAIN}"
               HOMEPAGE_VAR_UNIFI_USERNAME:
