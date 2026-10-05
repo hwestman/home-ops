@@ -155,4 +155,9 @@ data:
           detections:
             retain:
               days: 14
-              mode: motion
+              # mode: all, not global default "motion" - bark is audio-only
+              # and often has no pixel motion, so "motion" mode trimmed bark
+              # clips to nothing (has_clip: false, 404 on HA's video
+              # attachment). Only affects retention within already-flagged
+              # bark/person review events here, not continuous recording.
+              mode: all
