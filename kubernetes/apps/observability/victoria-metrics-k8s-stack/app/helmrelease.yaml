@@ -159,5 +159,12 @@ spec:
     grafana:
       fullnameOverride: grafana
       defaultDashboardsEnabled: true
+      # grafana.db (stars, users, manually-created dashboards) was living on
+      # an emptyDir - wiped on every pod reschedule (e.g. a helm upgrade).
+      persistence:
+        enabled: true
+        type: pvc
+        storageClassName: longhorn
+        size: 1Gi
       plugins:
         - victoriametrics-logs-datasource
