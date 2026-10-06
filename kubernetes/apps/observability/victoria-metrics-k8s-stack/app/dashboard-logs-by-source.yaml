@@ -16,8 +16,8 @@ data:
       "refresh": "1m",
       "panels": [
         {
-          "id": 1,
-          "title": "Log volume by namespace",
+          "id": 2,
+          "title": "Log volume by container",
           "type": "timeseries",
           "gridPos": { "h": 9, "w": 24, "x": 0, "y": 0 },
           "datasource": { "type": "victoriametrics-logs-datasource", "uid": "VictoriaLogs" },
@@ -25,44 +25,10 @@ data:
             {
               "datasource": { "type": "victoriametrics-logs-datasource", "uid": "VictoriaLogs" },
               "refId": "A",
-              "queryType": "hits",
+              "queryType": "statsRange",
               "editorMode": "code",
-              "expr": "*",
-              "fields": ["kubernetes.pod_namespace"],
-              "step": "$__interval"
-            }
-          ],
-          "fieldConfig": {
-            "defaults": {
-              "custom": {
-                "drawStyle": "bars",
-                "stacking": { "mode": "normal" },
-                "fillOpacity": 80,
-                "lineWidth": 0,
-                "pointSize": 0
-              },
-              "unit": "short"
-            }
-          },
-          "options": {
-            "legend": { "displayMode": "table", "placement": "right", "calcs": ["sum"] },
-            "tooltip": { "mode": "multi" }
-          }
-        },
-        {
-          "id": 2,
-          "title": "Log volume by container",
-          "type": "timeseries",
-          "gridPos": { "h": 9, "w": 24, "x": 0, "y": 9 },
-          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "VictoriaLogs" },
-          "targets": [
-            {
-              "datasource": { "type": "victoriametrics-logs-datasource", "uid": "VictoriaLogs" },
-              "refId": "A",
-              "queryType": "hits",
-              "editorMode": "code",
-              "expr": "*",
-              "fields": ["kubernetes.container_name"],
+              "expr": "* | stats by (kubernetes.container_name) count() as logs",
+              "legendFormat": "{{kubernetes.container_name}}",
               "step": "$__interval"
             }
           ],
@@ -87,7 +53,7 @@ data:
           "id": 3,
           "title": "Top sources in time range",
           "type": "table",
-          "gridPos": { "h": 10, "w": 24, "x": 0, "y": 18 },
+          "gridPos": { "h": 10, "w": 24, "x": 0, "y": 9 },
           "datasource": { "type": "victoriametrics-logs-datasource", "uid": "VictoriaLogs" },
           "targets": [
             {
@@ -95,7 +61,7 @@ data:
               "refId": "A",
               "queryType": "instant",
               "editorMode": "code",
-              "expr": "stats by (kubernetes.pod_namespace, kubernetes.container_name) count() as logs | sort by (logs) desc | limit 50"
+              "expr": "* | stats by (kubernetes.pod_namespace, kubernetes.container_name) count() as logs | sort by (logs) desc | limit 50"
             }
           ],
           "fieldConfig": {
