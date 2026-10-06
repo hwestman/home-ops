@@ -103,6 +103,35 @@ data:
             "displayMode": "gradient",
             "reduceOptions": { "calcs": ["lastNotNull"], "values": false }
           }
+        },
+        {
+          "id": 6,
+          "title": "Containers with most warning logs",
+          "type": "bargauge",
+          "gridPos": { "h": 10, "w": 24, "x": 0, "y": 19 },
+          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "VictoriaLogs" },
+          "targets": [
+            {
+              "datasource": { "type": "victoriametrics-logs-datasource", "uid": "VictoriaLogs" },
+              "refId": "A",
+              "queryType": "stats",
+              "editorMode": "code",
+              "expr": "(level:~\"(?i)warn\" OR _msg:~\"(?i)warn\") | stats by (kubernetes.container_name) count() as warnings",
+              "legendFormat": "{{kubernetes.container_name}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "min": 0,
+              "color": { "mode": "fixed", "fixedColor": "orange" }
+            }
+          },
+          "options": {
+            "orientation": "horizontal",
+            "displayMode": "gradient",
+            "reduceOptions": { "calcs": ["lastNotNull"], "values": false }
+          }
         }
       ]
     }
