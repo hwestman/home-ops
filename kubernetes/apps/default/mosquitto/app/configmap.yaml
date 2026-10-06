@@ -6,7 +6,9 @@ metadata:
 data:
   mosquitto.conf: |
     log_dest stdout
-    log_type all
+    log_type error
+    log_type warning
+    log_type notice
     connection_messages true
     listener 1883
     listener 9090
