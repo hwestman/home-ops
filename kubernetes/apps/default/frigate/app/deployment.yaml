@@ -25,9 +25,14 @@ spec:
             - sh
             - -c
             - |
-              if [ ! -f /config/config.yml ] || [ ! -s /config/config.yml ]; then
-                cp /config-template/config.yml /config/config.yml
-              fi
+              # Always overwrite, not just when missing - the ConfigMap is
+              # the single source of truth (see configmap.yaml). Frigate
+              # rewrites this file in place on the PVC at every boot, so a
+              # "copy only if missing" guard meant ConfigMap changes could
+              # never actually reach a running pod short of wiping the PVC
+              # by hand (found 2026-10-06 chasing a bark-clip retention fix
+              # that silently never applied across several restarts).
+              cp /config-template/config.yml /config/config.yml
           volumeMounts:
             - mountPath: /config
               name: frigate-config

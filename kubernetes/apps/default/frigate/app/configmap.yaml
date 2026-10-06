@@ -128,6 +128,21 @@ data:
         detect:
           width: 640
           height: 480
+        objects:
+          filters:
+            person:
+              # The dog keeps getting misclassified as "person" by the
+              # generic yolo/coco model, always in the same spot - 19 of the
+              # last 20 washroom "person" events (2026-10-06) had their box
+              # centered at x=0.80/y=0.42-0.47, a tight cluster confirmed
+              # visually (one thumbnail clearly shows the dog) as the corner
+              # by the door where it hangs out. Genuine person activity
+              # (laundry) clusters at x<=0.57, a comfortable gap below this
+              # mask's x=0.7 start - verified against every "person" event
+              # logged that day before adding this, not just the dog ones.
+              # Masks are checked against the box's bottom-center point, not
+              # overlap, so events that span across x=0.7 aren't clipped.
+              mask: 0.7,0,1,0,1,1,0.7,1
         # Recording enabled (was off entirely) - this is the laundry/dog
         # room, not a bathroom. Scoped to bark + person so nothing else
         # creates a review item: review.alerts.labels is emptied out to stop
