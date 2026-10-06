@@ -27,7 +27,7 @@ data:
               "refId": "A",
               "queryType": "hits",
               "query": "*",
-              "groupBy": "kubernetes.pod_namespace",
+              "field": "kubernetes.pod_namespace",
               "step": "$__interval"
             }
           ],
@@ -60,7 +60,7 @@ data:
               "refId": "A",
               "queryType": "hits",
               "query": "*",
-              "groupBy": "kubernetes.container_name",
+              "field": "kubernetes.container_name",
               "step": "$__interval"
             }
           ],
