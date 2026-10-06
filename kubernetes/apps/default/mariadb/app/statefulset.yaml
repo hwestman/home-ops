@@ -41,16 +41,28 @@ spec:
             limits:
               memory: "2Gi"
               cpu: "1000m"
+          # exec probes authenticate a real ping instead of just opening and
+          # dropping a bare TCP connection - a tcpSocket probe doesn't catch
+          # a server that accepts connections but has hung query processing,
+          # and MariaDB logs every one of those as an "Aborted connection
+          # ... unauthenticated" warning (~6.5k/6h, dominating log volume
+          # for no operational value).
           livenessProbe:
-            tcpSocket:
-              port: 3306
+            exec:
+              command:
+                - bash
+                - -c
+                - mariadb-admin ping -uroot -p"$MYSQL_ROOT_PASSWORD" --silent
             initialDelaySeconds: 60
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 5
           readinessProbe:
-            tcpSocket:
-              port: 3306
+            exec:
+              command:
+                - bash
+                - -c
+                - mariadb-admin ping -uroot -p"$MYSQL_ROOT_PASSWORD" --silent
             initialDelaySeconds: 30
             periodSeconds: 5
             timeoutSeconds: 3
