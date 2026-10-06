@@ -23,7 +23,13 @@ spec:
       # don't exist. Scaling to 0 removes the pods; bump this back (and
       # install the CRDs + snapshot-controller) if VolumeSnapshot
       # support is ever actually needed.
-      snapshotterReplicaCount: 0
+      #
+      # Must be the string "0", not the bare number: the chart's
+      # deployment-driver.yaml gates on `{{- if .Values.csi.snapshotterReplicaCount }}`,
+      # and Go templates treat numeric 0 as falsy (same as unset), so
+      # a bare `0` here silently omits the env var entirely and
+      # Longhorn falls back to its own default replica count instead.
+      snapshotterReplicaCount: "0"
     defaultSettings:
       # Second physical disk on w11-1, claimed via a Talos UserVolumeConfig
       # (see talos/all/72-longhorn-disk.yaml.tpl) — keeps Longhorn data off
