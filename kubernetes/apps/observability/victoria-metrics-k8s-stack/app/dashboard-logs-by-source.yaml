@@ -26,6 +26,7 @@ data:
               "datasource": { "type": "victoriametrics-logs-datasource", "uid": "VictoriaLogs" },
               "refId": "A",
               "queryType": "hits",
+              "editorMode": "code",
               "query": "*",
               "field": "kubernetes.pod_namespace",
               "step": "$__interval"
@@ -59,6 +60,7 @@ data:
               "datasource": { "type": "victoriametrics-logs-datasource", "uid": "VictoriaLogs" },
               "refId": "A",
               "queryType": "hits",
+              "editorMode": "code",
               "query": "*",
               "field": "kubernetes.container_name",
               "step": "$__interval"
@@ -92,6 +94,7 @@ data:
               "datasource": { "type": "victoriametrics-logs-datasource", "uid": "VictoriaLogs" },
               "refId": "A",
               "queryType": "instant",
+              "editorMode": "code",
               "query": "_time:$__range | stats by (kubernetes.pod_namespace, kubernetes.container_name) count() as logs | sort by (logs) desc | limit 50"
             }
           ],
