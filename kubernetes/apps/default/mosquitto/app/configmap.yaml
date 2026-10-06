@@ -15,3 +15,5 @@ data:
     protocol websockets
     allow_anonymous false
     password_file /mosquitto/data/passwd
+    persistence true
+    persistence_location /mosquitto/data/
