@@ -14,6 +14,16 @@ spec:
         name: longhorn
         namespace: longhorn-system
   values:
+    csi:
+      # We don't use the k8s-native VolumeSnapshot API (the
+      # snapshot.storage.k8s.io CRDs aren't installed) - backups go
+      # through Longhorn's own backup mechanism (defaultBackupStore
+      # below) instead. With the CRDs missing, this sidecar does
+      # nothing but spam ERROR logs retrying watches on resources that
+      # don't exist. Scaling to 0 removes the pods; bump this back (and
+      # install the CRDs + snapshot-controller) if VolumeSnapshot
+      # support is ever actually needed.
+      snapshotterReplicaCount: 0
     defaultSettings:
       # Second physical disk on w11-1, claimed via a Talos UserVolumeConfig
       # (see talos/all/72-longhorn-disk.yaml.tpl) — keeps Longhorn data off
