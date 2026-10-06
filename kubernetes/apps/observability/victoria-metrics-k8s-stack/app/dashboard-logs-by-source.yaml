@@ -50,33 +50,58 @@ data:
           }
         },
         {
-          "id": 3,
-          "title": "Top sources in time range",
-          "type": "table",
-          "gridPos": { "h": 10, "w": 24, "x": 0, "y": 9 },
+          "id": 4,
+          "title": "Log lines by container",
+          "type": "piechart",
+          "gridPos": { "h": 10, "w": 12, "x": 0, "y": 9 },
           "datasource": { "type": "victoriametrics-logs-datasource", "uid": "VictoriaLogs" },
           "targets": [
             {
               "datasource": { "type": "victoriametrics-logs-datasource", "uid": "VictoriaLogs" },
               "refId": "A",
-              "queryType": "instant",
+              "queryType": "stats",
               "editorMode": "code",
-              "expr": "* | stats by (kubernetes.pod_namespace, kubernetes.container_name) count() as logs | sort by (logs) desc | limit 50"
+              "expr": "* | stats by (kubernetes.container_name) count() as logs",
+              "legendFormat": "{{kubernetes.container_name}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": { "unit": "short" }
+          },
+          "options": {
+            "pieType": "pie",
+            "reduceOptions": { "calcs": ["lastNotNull"], "values": false },
+            "legend": { "displayMode": "table", "placement": "right", "values": ["value", "percent"] },
+            "tooltip": { "mode": "single" }
+          }
+        },
+        {
+          "id": 5,
+          "title": "Containers with most error logs",
+          "type": "bargauge",
+          "gridPos": { "h": 10, "w": 12, "x": 12, "y": 9 },
+          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "VictoriaLogs" },
+          "targets": [
+            {
+              "datasource": { "type": "victoriametrics-logs-datasource", "uid": "VictoriaLogs" },
+              "refId": "A",
+              "queryType": "stats",
+              "editorMode": "code",
+              "expr": "(level:~\"(?i)error\" OR _msg:~\"(?i)error\") | stats by (kubernetes.container_name) count() as errors",
+              "legendFormat": "{{kubernetes.container_name}}"
             }
           ],
           "fieldConfig": {
             "defaults": {
-              "custom": { "align": "auto", "cellOptions": { "type": "auto" } }
-            },
-            "overrides": [
-              {
-                "matcher": { "id": "byName", "options": "logs" },
-                "properties": [{ "id": "custom.cellOptions", "value": { "type": "gauge", "mode": "gradient" } }]
-              }
-            ]
+              "unit": "short",
+              "min": 0,
+              "color": { "mode": "fixed", "fixedColor": "red" }
+            }
           },
           "options": {
-            "sortBy": [{ "displayName": "logs", "desc": true }]
+            "orientation": "horizontal",
+            "displayMode": "gradient",
+            "reduceOptions": { "calcs": ["lastNotNull"], "values": false }
           }
         }
       ]
