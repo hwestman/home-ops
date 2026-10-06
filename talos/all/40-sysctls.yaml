@@ -10,3 +10,13 @@ params:
   net.ipv4.neigh.default.gc_thresh3: "16384" # Prevent ARP cache overflows
   net.ipv4.tcp_slow_start_after_idle: "0" # Preserve congestion window after idle
   user.max_user_namespaces: "11255" # User Namespaces
+  # No usable IPv6 on this LAN - the only RAs on it come from Apple TVs
+  # acting as Thread Border Routers (HomeKit/Matter), advertising a
+  # ULA mesh-local prefix with no real route anywhere. Apps still get
+  # real AAAA records for dual-stack internet hosts though, so without
+  # this they race into a guaranteed ENETUNREACH on the IPv6 branch -
+  # hit hardest by anything using hostNetwork (home-assistant), which
+  # sees the node's real interface state instead of Cilium's pod
+  # netns (which has no IPv6 at all, so never attempts it).
+  net.ipv6.conf.all.disable_ipv6: "1"
+  net.ipv6.conf.default.disable_ipv6: "1"
