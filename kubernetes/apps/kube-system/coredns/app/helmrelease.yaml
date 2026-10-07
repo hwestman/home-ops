@@ -32,6 +32,19 @@ spec:
             configBlock: |-
               lameduck 5s
           - name: ready
+          # No usable IPv6 on this LAN (see talos/all/40-sysctls.yaml) -
+          # answer every AAAA query with NODATA instead of forwarding it
+          # upstream, so clients never see a real AAAA record and never
+          # race a dead IPv6 candidate in the first place. Disabling IPv6
+          # at the node only makes that race fail fast; it doesn't stop
+          # happy-eyeballs implementations from attempting (and sometimes
+          # mishandling) it. No-op for cluster-internal lookups - Cilium
+          # already has IPv6 disabled for pod networking, so no pod/
+          # service ever had an AAAA record to begin with.
+          - name: template
+            parameters: IN AAAA .
+            configBlock: |-
+              rcode NOERROR
           - name: kubernetes
             parameters: cluster.local in-addr.arpa ip6.arpa
             configBlock: |-
