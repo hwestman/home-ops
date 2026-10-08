@@ -1,0 +1,139 @@
+---
+# Dedicated ServiceAccount for hermes - deliberately NOT reusing the
+# namespace's "default" ServiceAccount, which every other pod in this
+# namespace implicitly uses. Binding cluster-read RBAC to "default" would
+# hand that same access to every other pod here that doesn't set its own
+# serviceAccountName.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: hermes
+---
+# Read-only, cluster-wide, and deliberately excludes `secrets` entirely -
+# every rule below enumerates resources explicitly rather than using a
+# wildcard, specifically so this can never be expanded to cover secrets by
+# accident. A live Kubernetes Secret is plaintext-readable via the API
+# regardless of whether it was sops-encrypted in git, so granting `get` on
+# secrets here would hand an LLM agent reachable over Discord read access
+# to every credential in the cluster. Don't add secrets to this role.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: hermes-read-only
+rules:
+  - apiGroups: [""]
+    resources:
+      - pods
+      - pods/log
+      - pods/status
+      - services
+      - endpoints
+      - events
+      - nodes
+      - namespaces
+      - persistentvolumeclaims
+      - persistentvolumes
+      - configmaps
+      - replicationcontrollers
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources:
+      - deployments
+      - replicasets
+      - statefulsets
+      - daemonsets
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["batch"]
+    resources:
+      - jobs
+      - cronjobs
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["networking.k8s.io"]
+    resources:
+      - ingresses
+      - networkpolicies
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["gateway.networking.k8s.io"]
+    resources:
+      - gateways
+      - httproutes
+      - tcproutes
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["kustomize.toolkit.fluxcd.io"]
+    resources: ["kustomizations"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["helm.toolkit.fluxcd.io"]
+    resources: ["helmreleases"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["source.toolkit.fluxcd.io"]
+    resources:
+      - gitrepositories
+      - helmrepositories
+      - ocirepositories
+      - helmcharts
+      - buckets
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["notification.toolkit.fluxcd.io"]
+    resources:
+      - receivers
+      - alerts
+      - providers
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["longhorn.io"]
+    resources:
+      - volumes
+      - replicas
+      - engines
+      - nodes
+      - backups
+      - recurringjobs
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["metrics.k8s.io"]
+    resources:
+      - pods
+      - nodes
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: hermes-read-only
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: hermes-read-only
+subjects:
+  - kind: ServiceAccount
+    name: hermes
+    namespace: default
+---
+# Static in-cluster kubeconfig - no templating/generation step needed, since
+# the API server address and the ServiceAccount token/CA paths are fixed
+# Kubernetes conventions for any pod. `tokenFile` (not a literal token
+# value) points at the live projected SA token path, so kubectl always
+# reads the current token - this cluster's SA tokens are time-bound and
+# auto-rotated in place by the kubelet, and a literal copied-in token value
+# would go stale once rotated.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hermes-kubeconfig
+data:
+  config: |
+    apiVersion: v1
+    kind: Config
+    clusters:
+      - name: in-cluster
+        cluster:
+          server: https://kubernetes.default.svc
+          certificate-authority: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    contexts:
+      - name: in-cluster
+        context:
+          cluster: in-cluster
+          user: hermes
+    current-context: in-cluster
+    users:
+      - name: hermes
+        user:
+          tokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token

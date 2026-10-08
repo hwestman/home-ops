@@ -15,6 +15,20 @@ spec:
       labels:
         app: hermes
     spec:
+      serviceAccountName: hermes
+      initContainers:
+        # The hermes-agent image doesn't bundle kubectl - copy a pinned
+        # binary into a shared emptyDir so the gateway container's
+        # `terminal`/`code_execution` tools can call it directly.
+        - name: kubectl-init
+          image: bitnami/kubectl:1.31
+          command:
+            - sh
+            - -c
+            - cp /opt/bitnami/kubectl/bin/kubectl /shared-bin/kubectl
+          volumeMounts:
+            - name: kubectl-bin
+              mountPath: /shared-bin
       containers:
         - name: gateway
           image: nousresearch/hermes-agent:v2026.9.24
@@ -49,6 +63,14 @@ spec:
                 secretKeyRef:
                   name: hermes-secrets
                   key: HASS_URL
+            - name: KUBECONFIG
+              value: /opt/kube/config
+            # Prepend, don't replace - the image's own PATH (verified live,
+            # not guessed) includes /opt/hermes/bin and /opt/hermes/.venv/bin,
+            # where `hermes` and `python3` themselves live. A naive PATH
+            # override here would've broken the hermes CLI entirely.
+            - name: PATH
+              value: /opt/kube/bin:/opt/hermes/bin:/opt/hermes/.venv/bin:/opt/data/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
           resources:
             requests:
               cpu: 250m
@@ -59,6 +81,12 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /opt/data
+            - name: kubectl-bin
+              mountPath: /opt/kube/bin
+            - name: kubeconfig
+              mountPath: /opt/kube/config
+              subPath: config
+              readOnly: true
         - name: dashboard
           image: nousresearch/hermes-agent:v2026.9.24
           imagePullPolicy: IfNotPresent
@@ -117,3 +145,8 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: hermes-pvc
+        - name: kubectl-bin
+          emptyDir: {}
+        - name: kubeconfig
+          configMap:
+            name: hermes-kubeconfig

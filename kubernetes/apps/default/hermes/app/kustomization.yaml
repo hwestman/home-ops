@@ -4,5 +4,6 @@ kind: Kustomization
 resources:
   - ./secret.sops.yaml
   - ./pvc.yaml
+  - ./rbac.yaml
   - ./deployment.yaml
   - ./service.yaml
