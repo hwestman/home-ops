@@ -17,15 +17,23 @@ spec:
     spec:
       serviceAccountName: hermes
       initContainers:
-        # The hermes-agent image doesn't bundle kubectl - copy a pinned
-        # binary into a shared emptyDir so the gateway container's
+        # The hermes-agent image doesn't bundle kubectl - fetch a pinned
+        # binary (matching the cluster's actual v1.37.1 server, not left
+        # stale) straight from the official Kubernetes release server into
+        # a shared emptyDir, so the gateway container's
         # `terminal`/`code_execution` tools can call it directly.
+        # bitnami/kubectl's free tags were discontinued (2026-10-08: only
+        # digest/"latest" tags exist now). rancher/kubectl has versioned
+        # tags but turned out to be a shell-less distroless image ("sh":
+        # executable file not found) - can't exec a copy command inside it.
+        # curlimages/curl (alpine-based, has a real shell) pulling straight
+        # from dl.k8s.io avoids depending on any third party's repackaging.
         - name: kubectl-init
-          image: bitnami/kubectl:1.31
+          image: curlimages/curl:8.22.0
           command:
             - sh
             - -c
-            - cp /opt/bitnami/kubectl/bin/kubectl /shared-bin/kubectl
+            - curl -fL -o /shared-bin/kubectl https://dl.k8s.io/release/v1.37.1/bin/linux/amd64/kubectl && chmod +x /shared-bin/kubectl
           volumeMounts:
             - name: kubectl-bin
               mountPath: /shared-bin
