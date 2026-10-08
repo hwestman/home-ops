@@ -121,6 +121,9 @@ spec:
                 - Cloudflare:
                     - icon: cloudflare.svg
                       href: https://dash.cloudflare.com/
+                - Openrouter:
+                    - icon: openrouter.svg
+                      href: https://openrouter.ai/workspaces/default
           services.yaml: |
             - Network:
                 - Edgerouter4:

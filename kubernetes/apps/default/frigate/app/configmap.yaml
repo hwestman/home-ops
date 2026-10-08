@@ -18,7 +18,14 @@ data:
 
     model:
       model_type: yolo-generic
-      path: /config/model_cache/yolo.onnx
+      # Upgraded from yolov9-t (tiny) to yolov9-s (small) @ 320px
+      # (2026-10-08) - GPU was sitting at ~5% util / 4.37ms inference with
+      # the tiny model, so there was plenty of headroom for a more accurate
+      # variant at no real cost. Exported the same way as the original
+      # model (one-off Job, see git history), following Frigate's own
+      # documented yolov9 ONNX export process. Old yolo.onnx left in place
+      # on the PVC as an instant rollback if accuracy/perf regresses.
+      path: /config/model_cache/yolov9-s-320.onnx
       labelmap_path: /labelmap/coco-80.txt
       input_tensor: nchw
       input_dtype: float
