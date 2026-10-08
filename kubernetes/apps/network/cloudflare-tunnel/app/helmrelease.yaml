@@ -69,6 +69,8 @@ spec:
         data:
           config.yaml: |-
             ingress:
+              - hostname: "k8s.${SECRET_DOMAIN}"
+                service: tcp://192.168.1.71:6443
               - hostname: "${SECRET_DOMAIN}"
                 originRequest:
                   http2Origin: true
