@@ -87,7 +87,7 @@ data:
               "refId": "A",
               "queryType": "stats",
               "editorMode": "code",
-              "expr": "(level:~\"(?i)error\" OR _msg:~\"(?i)error\") | stats by (kubernetes.container_name) count() as errors",
+              "expr": "(level:~\"(?i)error\" OR _msg:~\"(?i)\\\\berror\\\\b\") | stats by (kubernetes.container_name) count() as errors",
               "legendFormat": "{{kubernetes.container_name}}"
             }
           ],
@@ -116,7 +116,7 @@ data:
               "refId": "A",
               "queryType": "stats",
               "editorMode": "code",
-              "expr": "(level:~\"(?i)warn\" OR _msg:~\"(?i)warn\") | stats by (kubernetes.container_name) count() as warnings",
+              "expr": "(level:~\"(?i)warn\" OR _msg:~\"(?i)\\\\bwarn(ing)?\\\\b\") | stats by (kubernetes.container_name) count() as warnings",
               "legendFormat": "{{kubernetes.container_name}}"
             }
           ],

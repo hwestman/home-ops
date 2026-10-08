@@ -159,6 +159,12 @@ spec:
     grafana:
       fullnameOverride: grafana
       defaultDashboardsEnabled: true
+      env:
+        # plugins.update.checker logs a full flag-evaluation struct dump at
+        # info level on every check (~every 40s) - the struct's empty
+        # ErrorCode/ErrorMessage fields were tripping log-scanning dashboards
+        # that match on the substring "error".
+        GF_LOG_FILTERS: plugins.update.checker:error
       # grafana.db (stars, users, manually-created dashboards) was living on
       # an emptyDir - wiped on every pod reschedule (e.g. a helm upgrade).
       persistence:
