@@ -70,11 +70,29 @@ data:
       alerts:
         retain:
           days: 30
-          mode: motion
+          # active_objects, not motion (2026-10-09): mode only controls
+          # trimming *within* an already-created alert/detection clip -
+          # review items themselves already require a tracked object, so
+          # this was never "a clip for every motion event." But `motion`
+          # mode keeps any sub-segment with motion OR audio even once the
+          # object is gone (record/maintainer.py SegmentInfo.
+          # should_discard_segment) - e.g. leaves blowing after a car
+          # leaves frame stays in the clip. `active_objects` keeps only
+          # segments where a tracked object was actually present.
+          mode: active_objects
       detections:
         retain:
-          days: 0
-          mode: motion
+          # Was 0 days - harmless before (only `person` was tracked, and
+          # it's also an alert label, so nothing ever landed detections-
+          # only). Now that most of driveway's tracked labels (dog, cat,
+          # bird, bicycle, motorcycle, snowboard, skis, potted plant,
+          # bottle, pizza, book) aren't in alerts.labels ([person, car]
+          # default), they're detections-tier only - 0 days would delete
+          # those clips almost immediately. Matched to alerts' 30 days;
+          # active_objects mode (above) already keeps these trimmed to
+          # just the object-present segments, so storage impact is low.
+          days: 30
+          mode: active_objects
 
     cameras:
       driveway:
@@ -91,6 +109,27 @@ data:
           height: 360
         # No continuous recording - motion-only (inherits the global
         # record.motion block above).
+        objects:
+          # Frigate's objects.track defaults to ["person"] only (frigate/
+          # config/camera/objects.py DEFAULT_TRACKED_OBJECTS) - car/dog/cat
+          # were never tracked here despite being in the coco-80 labelmap.
+          # car lands as an alert automatically (review.alerts.labels
+          # defaults to [person, car]); dog/cat show as detections tier
+          # unless added to alerts.labels too.
+          track:
+            - person
+            - car
+            - dog
+            - cat
+            - bird
+            - bicycle
+            - motorcycle
+            - snowboard
+            - skis
+            - potted plant
+            - bottle
+            - pizza
+            - book
       garage:
         ffmpeg:
           inputs:
