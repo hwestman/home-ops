@@ -132,6 +132,14 @@ data:
           enabled: true
           listen:
             - bark
+          # Default threshold (0.8) was too high - every bark event ever
+          # logged here scored 0.80-0.85, right at that edge (confirmed via
+          # /api/events, 2026-10-09), meaning most actual barks were
+          # scoring just under 0.8 and never creating an event at all.
+          # Lowered to let quieter/less-confident barks through.
+          filters:
+            bark:
+              threshold: 0.6
         detect:
           width: 640
           height: 480
