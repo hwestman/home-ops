@@ -168,8 +168,14 @@ spec:
       # Hit this on the 0.95.0->0.95.2 bump (surge pod produced zero logs,
       # rollout timed out after 5m). Recreate avoids the deadlock by
       # terminating the old pod - and releasing the volume - first.
+      # rollingUpdate must be explicitly nulled, not just omitted - the live
+      # Deployment still carries it from the previous RollingUpdate-typed
+      # release, and the API server rejects type: Recreate while any
+      # rollingUpdate field is present (SSA won't clear a field this
+      # manager previously set unless the new apply says so explicitly).
       deploymentStrategy:
         type: Recreate
+        rollingUpdate: null
       env:
         # plugins.update.checker logs a full flag-evaluation struct dump at
         # info level on every check (~every 40s) - the struct's empty
