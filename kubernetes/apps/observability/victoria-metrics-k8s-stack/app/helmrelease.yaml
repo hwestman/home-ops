@@ -159,6 +159,17 @@ spec:
     grafana:
       fullnameOverride: grafana
       defaultDashboardsEnabled: true
+      # Single replica on a Longhorn RWO PVC + the chart's default
+      # RollingUpdate strategy deadlocks on upgrade: Kubernetes rounds
+      # maxSurge up to 1 for a single-replica Deployment, and if that surge
+      # pod lands on a different node than the one already holding the
+      # volume, it hangs forever waiting to attach (RWO is single-node-only)
+      # - the old pod never gets replaced so the volume never frees up.
+      # Hit this on the 0.95.0->0.95.2 bump (surge pod produced zero logs,
+      # rollout timed out after 5m). Recreate avoids the deadlock by
+      # terminating the old pod - and releasing the volume - first.
+      deploymentStrategy:
+        type: Recreate
       env:
         # plugins.update.checker logs a full flag-evaluation struct dump at
         # info level on every check (~every 40s) - the struct's empty
