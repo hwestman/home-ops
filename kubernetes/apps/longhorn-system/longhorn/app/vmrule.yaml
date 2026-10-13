@@ -7,8 +7,20 @@ spec:
   groups:
     - name: longhorn.rules
       rules:
+        # sum without(...) drops scrape-plumbing labels (container, endpoint,
+        # instance, job, namespace, pod, prometheus, service) that the raw
+        # division carries through from longhorn-manager's own metrics
+        # endpoint - they're identical across every volume/node and add
+        # nothing but bytes. alertmanager-ntfy turns every alert label into
+        # an ntfy tag unconditionally (no filter option), and ntfy rejects
+        # anything over 512 combined bytes - this keeps real margin instead
+        # of the ~70-90 bytes these alerts had before trimming.
         - alert: LonghornVolumeUsageWarning
-          expr: 100 * longhorn_volume_actual_size_bytes / longhorn_volume_capacity_bytes > 85
+          expr: >-
+            100
+            * sum without (container, endpoint, instance, job, namespace, pod, prometheus, service) (longhorn_volume_actual_size_bytes)
+            / sum without (container, endpoint, instance, job, namespace, pod, prometheus, service) (longhorn_volume_capacity_bytes)
+            > 85
           for: 10m
           labels:
             severity: warning
@@ -16,7 +28,11 @@ spec:
             summary: Longhorn volume {{ $labels.volume }} is over 85% full.
             description: 'Volume {{ $labels.volume }} (PVC {{ $labels.pvc_namespace }}/{{ $labels.pvc }}) is {{ printf "%.1f" $value }}% full.'
         - alert: LonghornVolumeUsageCritical
-          expr: 100 * longhorn_volume_actual_size_bytes / longhorn_volume_capacity_bytes > 95
+          expr: >-
+            100
+            * sum without (container, endpoint, instance, job, namespace, pod, prometheus, service) (longhorn_volume_actual_size_bytes)
+            / sum without (container, endpoint, instance, job, namespace, pod, prometheus, service) (longhorn_volume_capacity_bytes)
+            > 95
           for: 10m
           labels:
             severity: critical
@@ -24,7 +40,11 @@ spec:
             summary: Longhorn volume {{ $labels.volume }} is over 95% full.
             description: 'Volume {{ $labels.volume }} (PVC {{ $labels.pvc_namespace }}/{{ $labels.pvc }}) is {{ printf "%.1f" $value }}% full.'
         - alert: LonghornNodeStorageWarning
-          expr: 100 * longhorn_node_storage_usage_bytes / longhorn_node_storage_capacity_bytes > 85
+          expr: >-
+            100
+            * sum without (container, endpoint, instance, job, namespace, pod, prometheus, service) (longhorn_node_storage_usage_bytes)
+            / sum without (container, endpoint, instance, job, namespace, pod, prometheus, service) (longhorn_node_storage_capacity_bytes)
+            > 85
           for: 10m
           labels:
             severity: warning
@@ -32,7 +52,11 @@ spec:
             summary: Longhorn storage on node {{ $labels.node }} is over 85% full.
             description: 'Node {{ $labels.node }}''s Longhorn-managed disk is {{ printf "%.1f" $value }}% full — replicas on this node are at risk regardless of individual volume size.'
         - alert: LonghornNodeStorageCritical
-          expr: 100 * longhorn_node_storage_usage_bytes / longhorn_node_storage_capacity_bytes > 95
+          expr: >-
+            100
+            * sum without (container, endpoint, instance, job, namespace, pod, prometheus, service) (longhorn_node_storage_usage_bytes)
+            / sum without (container, endpoint, instance, job, namespace, pod, prometheus, service) (longhorn_node_storage_capacity_bytes)
+            > 95
           for: 10m
           labels:
             severity: critical
