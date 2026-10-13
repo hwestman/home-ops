@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - ./helmrepository.yaml
   - ./helmrelease.yaml
+  - ./storageclass-single-replica.yaml
   - ./httproute.yaml
   - ./vmservicescrape.yaml
   - ./vmrule.yaml

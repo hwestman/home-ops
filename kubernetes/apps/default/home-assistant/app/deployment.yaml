@@ -58,6 +58,8 @@ spec:
           volumeMounts:
             - name: home-assistant
               mountPath: /config
+            - name: home-assistant-media
+              mountPath: /config/media
             - name: github-credentials
               mountPath: /var/run/secrets/github
               readOnly: true
@@ -147,6 +149,8 @@ spec:
               mountPath: /config
             - name: esphome
               mountPath: /config/esphome
+            - name: home-assistant-media
+              mountPath: /config/media
             - name: github-credentials
               mountPath: /var/run/secrets/github
               readOnly: true
@@ -157,6 +161,9 @@ spec:
         - name: esphome
           persistentVolumeClaim:
             claimName: esphome-pvc
+        - name: home-assistant-media
+          persistentVolumeClaim:
+            claimName: home-assistant-media-pvc
         - name: github-credentials
           secret:
             secretName: home-assistant-github

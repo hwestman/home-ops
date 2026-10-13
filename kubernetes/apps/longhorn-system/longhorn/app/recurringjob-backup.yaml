@@ -8,8 +8,14 @@
 # pvc.yaml for which ones: mariadb, home-assistant-pvc, esphome-pvc,
 # home-assistant-hytta-pvc, unifi-data, frigate-config (holds
 # model_cache/yolo.onnx - does NOT auto-regenerate, learned the hard way
-# 2026-09-16), mosquitto-pvc (auth passwd file). Deliberately NOT
-# frigate-media - large camera footage, not worth the storage cost.
+# 2026-09-16), mosquitto-pvc (auth passwd file), hermes-pvc. Deliberately
+# NOT frigate-media or home-assistant-media-pvc - large, re-derivable/
+# non-critical media, not worth the storage cost.
+#
+# Every one of these PVCs also explicitly carries
+# recurring-job-group.longhorn.io/default: enabled alongside this label -
+# see recurringjob.yaml for why that's required, not automatic, once a
+# volume has any other group label.
 apiVersion: longhorn.io/v1beta2
 kind: RecurringJob
 metadata:

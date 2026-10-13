@@ -6,6 +6,7 @@ metadata:
   labels:
     recurring-job.longhorn.io/source: enabled
     recurring-job-group.longhorn.io/offsite-backup: enabled
+    recurring-job-group.longhorn.io/default: enabled
 spec:
   storageClassName: longhorn
   accessModes:
@@ -21,6 +22,7 @@ metadata:
   labels:
     recurring-job.longhorn.io/source: enabled
     recurring-job-group.longhorn.io/offsite-backup: enabled
+    recurring-job-group.longhorn.io/default: enabled
 spec:
   storageClassName: longhorn
   accessModes:
@@ -28,3 +30,21 @@ spec:
   resources:
     requests:
       storage: 1Gi
+---
+# Holds /config/media (doorbell snapshots, music, sounds) - split out of
+# home-assistant-pvc so its growth doesn't crowd the actual config/recorder
+# state. Deliberately no recurring-job labels (excluded from offsite
+# backup - large, re-derivable/non-critical, same reasoning as
+# frigate-media) and single-replica (see
+# ../../../longhorn-system/longhorn/app/storageclass-single-replica.yaml).
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: home-assistant-media-pvc
+spec:
+  storageClassName: longhorn-single-replica
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi

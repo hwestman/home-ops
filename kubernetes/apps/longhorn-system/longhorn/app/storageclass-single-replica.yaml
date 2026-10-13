@@ -1,0 +1,26 @@
+---
+# Same as the "longhorn" StorageClass (whose params come from the Helm
+# chart's defaults, see helmrelease.yaml) but with numberOfReplicas: "1" -
+# for volumes that are large/non-critical/re-derivable and deliberately
+# not worth the extra disk cost of redundancy (e.g. home-assistant's
+# media folder). Declarative alternative to patching spec.numberOfReplicas
+# on the live Volume by hand after the fact (see frigate-media/pvc.yaml
+# for that older, untracked approach).
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: longhorn-single-replica
+provisioner: driver.longhorn.io
+allowVolumeExpansion: true
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+parameters:
+  numberOfReplicas: "1"
+  staleReplicaTimeout: "30"
+  fromBackup: ""
+  fsType: "ext4"
+  dataLocality: "disabled"
+  unmapMarkSnapChainRemoved: "ignored"
+  disableRevisionCounter: "true"
+  dataEngine: "v1"
+  backupTargetName: "default"

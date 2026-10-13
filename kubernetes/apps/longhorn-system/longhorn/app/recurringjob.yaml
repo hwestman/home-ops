@@ -5,10 +5,18 @@
 # climbing toward the volume's capacity even though live data stays small,
 # eventually causing real write failures once actualSize hits the cap.
 #
-# Every volume implicitly belongs to the "default" recurring-job group
-# unless it's been assigned to a specific one, so this applies to all
-# longhorn-backed volumes (currently just frigate-media and
-# frigate-config) without needing per-volume labeling.
+# A volume implicitly belongs to the "default" recurring-job group only
+# as long as it has no OTHER explicit recurring-job-group label - adding
+# any other group (e.g. offsite-backup) silently opts it out of "default"
+# too, unless recurring-job-group.longhorn.io/default: enabled is also set
+# explicitly. Found 2026-10-13: every backed-up PVC (mariadb,
+# home-assistant-pvc, esphome-pvc, home-assistant-hytta-pvc, unifi-data,
+# frigate-config, mosquitto-pvc, hermes-pvc - see recurringjob-backup.yaml)
+# had fallen out of this group for exactly that reason and was never being
+# trimmed, so their Longhorn "actual size" only ever grew. Fixed by adding
+# the default label explicitly alongside offsite-backup on each PVC.
+# frigate-media carries no labels at all, so it gets "default" purely
+# implicitly.
 apiVersion: longhorn.io/v1beta2
 kind: RecurringJob
 metadata:
