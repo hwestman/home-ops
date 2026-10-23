@@ -83,6 +83,12 @@ spec:
       rules:
         count:up0:
           enabled: false
+        # Fires when requests wouldn't fit after losing the largest node.
+        # w11-1 has 3x the cores of w11-2/w11-3 and hosts workloads pinned
+        # to it anyway (frigate's GPU, home-assistant's hostNetwork), so
+        # N-1 headroom for it isn't achievable or meaningful here.
+        KubeCPUOvercommit:
+          enabled: false
       groups:
         kube-apiserver-burnrate.rules:
           enabled: false
