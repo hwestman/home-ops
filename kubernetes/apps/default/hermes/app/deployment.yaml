@@ -29,7 +29,7 @@ spec:
         # curlimages/curl (alpine-based, has a real shell) pulling straight
         # from dl.k8s.io avoids depending on any third party's repackaging.
         - name: kubectl-init
-          image: curlimages/curl:8.22.0
+          image: curlimages/curl:8.23.0
           command:
             - sh
             - -c
