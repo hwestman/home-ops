@@ -42,6 +42,13 @@ spec:
       # w11-1's "gpu-node" tag — see frigate/app/pvc.yaml), so it never
       # migrates away from the node its GPU-bound pod is stuck on.
       replicaAutoBalance: best-effort
+      # Trim can only reclaim blocks in the volume head, not in snapshots.
+      # The nightly offsite-backup snapshot otherwise pins every deleted
+      # block, so actualSize climbs to capacity regardless of frigate-trim
+      # (mariadb: 32% fs usage, 95% actualSize, 2026-11-16). Cost: the next
+      # backup has no local base snapshot and re-reads the whole volume
+      # (upload is still deduplicated against the backup store).
+      removeSnapshotsDuringFilesystemTrim: true
     # Cloudflare R2 (S3-compatible), offsite backup target - the old
     # cluster's NAS backup target is down/possibly dead, so this remains
     # the real safety net even now that in-cluster replicas exist. Region is a
